@@ -4,7 +4,7 @@ description: Generate Validate-Project Command
 
 # Generate Validate-Project Command
 
-**Use [.claude/commands/example-validate.md](.claude/commands/example-validate.md) as the template.** That file shows the structure (phases, `!` runnable commands, summary). Also use [validation/ultimate_validate_command.md](validation/ultimate_validate_command.md) for philosophy (user workflows, E2E levels).
+**Use [.claude/commands/example-validate.md](.claude/commands/example-validate.md) as the template.** That file shows the structure (phases, backtick-fenced runnable commands, summary). Also use [validation/ultimate_validate_command.md](validation/ultimate_validate_command.md) for philosophy (user workflows, E2E levels).
 
 **Why /validate-project (not /validate):** We generate a **`/validate-project`** command so project-specific validation is not overridden by team or global `/validate` commands. Users run **`/validate-project`** to run this project's validation.
 
@@ -65,6 +65,8 @@ Explore the codebase to understand:
 
 **Only include phases that exist in the codebase.** Adapt paths and commands to this project (e.g. no `frontend/`/`backend/` if the project has a different layout).
 
+**Python projects using uv:** For ruff, mypy, black, pytest, etc., always use `uv run <tool>` (e.g. `uv run ruff check app/ tests/`, `uv run mypy app/`, `uv run ruff format --check app/ tests/`, `uv run pytest tests/ -v`) so validation runs without requiring the venv to be activated or tools on PATH. If the project has `pyproject.toml` and optional dev deps, users should run `uv sync --all-extras` once so lint/type/formatter tools are installed.
+
 **E2E (from validation/ultimate_validate_command.md):**
 1. Internal APIs - endpoints, DB, commands
 2. External integrations - CLIs, platform APIs
@@ -79,7 +81,7 @@ Write the generated validation so **`/validate-project`** is available in every 
 3. **`.cursor/commands/validate-project.md`** – Cursor commands folder (copy same content)
 4. **`.github/prompts/validate-project.prompt.md`** – VS Code Copilot (same content; add YAML frontmatter with `description:` and `mode:` if needed for that IDE)
 
-Use the same phase structure and format as [.claude/commands/example-validate.md](.claude/commands/example-validate.md) (e.g. `!` for runnable commands where the IDE supports it, or clear bash/code blocks).
+Use the same phase structure and format as [.claude/commands/example-validate.md](.claude/commands/example-validate.md). **Runnable commands:** Use backtick-fenced only, e.g. `` `uv run ruff check app/ tests/` `` — do **not** prefix with `!` (bash treats `!` as history expansion and the command can fail). **curl with JSON:** For any `curl -d` with JSON, use escaped double quotes so the command is safe when run by automation: `-d "{\"key\":\"value\"}"` — never `-d '{"key":"value"}'` (single-quoted JSON can break when the runner passes the command to bash).
 
 **Journal entry step (required):** The generated command MUST include a final section that instructs the AI to append a daily journal entry after validation completes:
 1. Ensure `journal/` exists (`mkdir -p journal`).

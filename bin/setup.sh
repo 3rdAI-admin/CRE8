@@ -82,12 +82,12 @@ setup_vscode() {
     echo -e "${MAGENTA}${BOLD}  Setting up VS Code with GitHub Copilot${NC}"
     echo -e "${MAGENTA}${BOLD}══════════════════════════════════════════════════════════════${NC}"
     echo ""
-
-    if [ -f "${SCRIPT_DIR}/bin/setup-vscode.sh" ]; then
-        bash "${SCRIPT_DIR}/bin/setup-vscode.sh"
+    
+    if [ -f "${SCRIPT_DIR}/setup-vscode.sh" ]; then
+        bash "${SCRIPT_DIR}/setup-vscode.sh"
         return $?
     else
-        print_error "bin/setup-vscode.sh not found!"
+        print_error "setup-vscode.sh not found!"
         return 1
     fi
 }
@@ -98,12 +98,12 @@ setup_claude() {
     echo -e "${MAGENTA}${BOLD}  Setting up Claude Code${NC}"
     echo -e "${MAGENTA}${BOLD}══════════════════════════════════════════════════════════════${NC}"
     echo ""
-
-    if [ -f "${SCRIPT_DIR}/bin/setup-claude.sh" ]; then
-        bash "${SCRIPT_DIR}/bin/setup-claude.sh"
+    
+    if [ -f "${SCRIPT_DIR}/setup-claude.sh" ]; then
+        bash "${SCRIPT_DIR}/setup-claude.sh"
         return $?
     else
-        print_error "bin/setup-claude.sh not found!"
+        print_error "setup-claude.sh not found!"
         return 1
     fi
 }
@@ -114,12 +114,12 @@ setup_cursor() {
     echo -e "${MAGENTA}${BOLD}  Setting up Cursor${NC}"
     echo -e "${MAGENTA}${BOLD}══════════════════════════════════════════════════════════════${NC}"
     echo ""
-
-    if [ -f "${SCRIPT_DIR}/bin/setup-cursor.sh" ]; then
-        bash "${SCRIPT_DIR}/bin/setup-cursor.sh"
+    
+    if [ -f "${SCRIPT_DIR}/setup-cursor.sh" ]; then
+        bash "${SCRIPT_DIR}/setup-cursor.sh"
         return $?
     else
-        print_error "bin/setup-cursor.sh not found!"
+        print_error "setup-cursor.sh not found!"
         return 1
     fi
 }

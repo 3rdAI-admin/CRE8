@@ -11,49 +11,12 @@ A simple conversational agent that demonstrates core PydanticAI patterns:
 import logging
 from dataclasses import dataclass
 from typing import Optional
-from pydantic_settings import BaseSettings
-from pydantic import Field
 from pydantic_ai import Agent
-from pydantic_ai.providers.openai import OpenAIProvider
-from pydantic_ai.models.openai import OpenAIModel
-from dotenv import load_dotenv
 
-# Load environment variables
-load_dotenv()
+# Import shared configuration
+from ..shared import get_llm_model
 
 logger = logging.getLogger(__name__)
-
-
-class Settings(BaseSettings):
-    """Configuration settings for the chat agent."""
-
-    # LLM Configuration
-    llm_provider: str = Field(default="openai")
-    llm_api_key: str = Field(...)
-    llm_model: str = Field(default="gpt-4")
-    llm_base_url: str = Field(default="https://api.openai.com/v1")
-
-    class Config:
-        env_file = ".env"
-        case_sensitive = False
-
-
-def get_llm_model() -> OpenAIModel:
-    """Get configured LLM model from environment settings."""
-    try:
-        settings = Settings()
-        provider = OpenAIProvider(
-            base_url=settings.llm_base_url, api_key=settings.llm_api_key
-        )
-        return OpenAIModel(settings.llm_model, provider=provider)
-    except Exception:
-        # For testing without env vars
-        import os
-
-        os.environ.setdefault("LLM_API_KEY", "test-key")
-        settings = Settings()
-        provider = OpenAIProvider(base_url=settings.llm_base_url, api_key="test-key")
-        return OpenAIModel(settings.llm_model, provider=provider)
 
 
 @dataclass
@@ -133,7 +96,7 @@ async def chat_with_agent(
     # Run the agent with the message and context
     result = await chat_agent.run(message, deps=context)
 
-    return result.data
+    return result.output
 
 
 def chat_with_agent_sync(
@@ -158,7 +121,7 @@ def chat_with_agent_sync(
     # Run the agent synchronously
     result = chat_agent.run_sync(message, deps=context)
 
-    return result.data
+    return result.output
 
 
 # Example usage and demonstration

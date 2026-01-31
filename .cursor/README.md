@@ -65,7 +65,7 @@ Cursor now supports slash commands just like VS Code and Claude Code! Use these 
 
 | Order | Command | Description | When to run |
 |-------|---------|-------------|-------------|
-| 1 | `/new-project` | Create a new project from the template | When starting a new project |
+| 1 | `/new-project` | Create a new project from the template; **copies all slash commands** (`.cursor/`, `.claude/`, etc.) into the new project so you can open it in Cursor and continue with `/generate-prp`, `/execute-prp`, etc. | When starting a new project |
 | 2 | `/generate-prp` | Create implementation plan from INITIAL.md | For each feature or when requirements change |
 | 3 | `/generate-validate` | Analyze codebase and create **`/validate-project`** from example-validate | **Once, or after a significant project change** (run after planning, before building) |
 | 4 | `/build-prp` | Finalize PRP, then optionally build and run | After you have a PRP; when you want to finalize the plan before implementing |
@@ -75,6 +75,8 @@ Cursor now supports slash commands just like VS Code and Claude Code! Use these 
 | 7 | `/generate-prompt` | Generate XML-structured prompt with ambiguity detection | Anytime (quick tasks) |
 
 **Usage:** Type `/` in Cursor chat to see available commands.
+
+**New projects:** When you create a project with `/new-project`, the new project gets a full copy of the slash commands (`.cursor/prompts/`, etc.). Open that project in Cursor and you can run `/generate-prp`, `/execute-prp`, `/validate-project`, and the rest—no extra install needed.
 
 **Same workflow in all three IDEs (VS Code, Claude Code, Cursor):** **`/generate-validate`** creates **`/validate-project`** in each IDE (`.github/prompts/validate-project.prompt.md`, `.claude/commands/validate-project.md`, `.cursor/prompts/validate-project.md`). Use **`/validate-project`** (not `/validate`) for project validation. In this repo only, **`/validate`** runs the 8-phase template check.
 

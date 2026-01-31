@@ -242,7 +242,7 @@ def create_research_agent(
     gmail_credentials_path: str,
     gmail_token_path: str,
     session_id: Optional[str] = None,
-) -> Agent:
+) -> Agent[ResearchAgentDependencies, str]:
     """
     Create a research agent with specified dependencies.
 

@@ -80,14 +80,17 @@ get_description() {
 # Sync a single command
 sync_command() {
     local src="$1"
-    local basename=$(basename "$src" .md)
-    local description=$(get_description "$src")
+    local basename
+    local description
+    basename=$(basename "$src" .md)
+    description=$(get_description "$src")
 
     # Read source content (strip any existing frontmatter)
     local content
     if head -1 "$src" | grep -q "^---$"; then
         # Find line number of second --- and take everything after
-        local end_line=$(awk '/^---$/{n++; if(n==2){print NR; exit}}' "$src")
+        local end_line
+        end_line=$(awk '/^---$/{n++; if(n==2){print NR; exit}}' "$src")
         if [ -n "$end_line" ]; then
             content=$(tail -n +$((end_line + 1)) "$src")
         else
@@ -137,7 +140,8 @@ $content"
         esac
 
         if [ -f "$target_file" ]; then
-            local existing=$(cat "$target_file")
+            local existing
+            existing=$(cat "$target_file")
             if [ "$existing" != "$target_content" ]; then
                 changes=$((changes + 1))
                 if $CHECK_MODE; then

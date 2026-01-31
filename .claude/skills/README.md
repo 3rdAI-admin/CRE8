@@ -6,7 +6,7 @@ These skills are **slash commands** in Claude Code chat. Type **`/`** in the cha
 
 | Order | Type in chat | What it does | When to run |
 |-------|---------------|--------------|-------------|
-| 1 | `/new-project [path]` | Create a new project from the template | When starting a new project |
+| 1 | `/new-project [path]` | Create a new project from the template; **copies all slash commands** into the new project so you can open it and continue the workflow | When starting a new project |
 | 2 | `/generate-prp [INITIAL.md]` | Generate a PRP from requirements | For each feature or when requirements change |
 | 3 | `/generate-validate` | Create **`/validate-project`** for this project | **Once, or after a significant project change** (run after planning, before building) |
 | 4 | `/build-prp [PRPs/feature.md]` | Finalize PRP, then optionally build and run | After you have a PRP; when you want to finalize the plan before implementing |
@@ -18,4 +18,4 @@ These skills are **slash commands** in Claude Code chat. Type **`/`** in the cha
 Each skill delegates to the full instructions in `.claude/commands/<name>.md`.  
 **Requirement:** Open this repo (or a project that has these files) as the project root in Claude Code so `.claude/skills/` is discovered.
 
-**To get these commands in another project** (e.g. one you created with `/new-project`): from the template repo run `./install-claude-commands.sh` and enter the project path when prompted. Then open that project in Claude Code and restart.
+**New vs existing projects:** Projects **created with `/new-project`** already have the commands—just open that project in Claude Code. For an **existing** project not created from this template, run from the template repo: `./install-claude-commands.sh` and enter the project path when prompted. Then open that project in Claude Code and restart.

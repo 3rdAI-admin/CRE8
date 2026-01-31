@@ -25,7 +25,7 @@ This repo is a **workflow + a set of slash commands** that run inside your AI co
 
 | Order | Command                | What it does                                                                        | When to run                                                                                                                     |
 | ----- | ---------------------- | ----------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
-| 1     | `/new-project`       | Create a new project folder with this workflow preconfigured                        | When starting a new project                                                                                                     |
+| 1     | `/new-project`       | Create a new project folder with this workflow preconfigured; **copies all slash commands** into the new project so you can open it and finish the workflow | When starting a new project                                                                                                     |
 | 2     | `/generate-prd`      | Turn your idea (e.g. from `INITIAL.md`) into a **professional Product Requirements Document (PRD)** | For each product/feature; creates a stakeholder-ready PRD in `PRDs/` |
 | 3     | `/generate-prp`      | Turn the PRD (or INITIAL.md) into an **execution plan with multi-agent task breakdown** (small tasks for accuracy) | After PRD; creates plan in `PRPs/` |
 | 4     | `/generate-validate` | Have the AI create **`/validate-project`** for your project (from example-validate template) | **Once, or after a significant project change** (run after planning, before building) |
@@ -58,7 +58,7 @@ The main idea: a **PRD** gives you a professional requirements doc; the **PRP** 
 
 | Step | Command                | You do this                                                                                                    | The AI does this                                |
 | ---- | ---------------------- | -------------------------------------------------------------------------------------------------------------- | ----------------------------------------------- |
-| 1    | `/new-project`       | Create project (or open existing)                                                                              | Sets up folder and workflow files               |
+| 1    | `/new-project`       | Create project (or open existing)                                                                              | Sets up folder, workflow files, and **all slash commands**—new project ready to use |
 | 2    | —                     | Describe the feature in `INITIAL.md` or chat                                                                   | —                                               |
 | 3    | `/generate-prd`      | Run for each product/feature                                                                                    | Writes a professional PRD in `PRDs/`           |
 | 4    | `/generate-prp`      | Run after PRD                                                                                                   | Researches and writes execution plan (PRP) with **multi-agent task breakdown** |

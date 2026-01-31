@@ -18,49 +18,12 @@ from dataclasses import dataclass
 from typing import Optional
 from datetime import datetime
 import aiohttp
-from pydantic_settings import BaseSettings
-from pydantic import Field
 from pydantic_ai import Agent, RunContext
-from pydantic_ai.providers.openai import OpenAIProvider
-from pydantic_ai.models.openai import OpenAIModel
-from dotenv import load_dotenv
 
-# Load environment variables
-load_dotenv()
+# Import shared configuration
+from ..shared import get_llm_model
 
 logger = logging.getLogger(__name__)
-
-
-class Settings(BaseSettings):
-    """Configuration settings for the tool-enabled agent."""
-
-    # LLM Configuration
-    llm_provider: str = Field(default="openai")
-    llm_api_key: str = Field(...)
-    llm_model: str = Field(default="gpt-4")
-    llm_base_url: str = Field(default="https://api.openai.com/v1")
-
-    class Config:
-        env_file = ".env"
-        case_sensitive = False
-
-
-def get_llm_model() -> OpenAIModel:
-    """Get configured LLM model from environment settings."""
-    try:
-        settings = Settings()
-        provider = OpenAIProvider(
-            base_url=settings.llm_base_url, api_key=settings.llm_api_key
-        )
-        return OpenAIModel(settings.llm_model, provider=provider)
-    except Exception:
-        # For testing without env vars
-        import os
-
-        os.environ.setdefault("LLM_API_KEY", "test-key")
-        settings = Settings()
-        provider = OpenAIProvider(base_url=settings.llm_base_url, api_key="test-key")
-        return OpenAIModel(settings.llm_model, provider=provider)
 
 
 @dataclass
@@ -124,7 +87,9 @@ async def web_search(
         params = {"q": query, "format": "json", "pretty": "1", "no_redirect": "1"}
 
         async with ctx.deps.session.get(
-            search_url, params=params, timeout=ctx.deps.api_timeout
+            search_url,
+            params=params,
+            timeout=aiohttp.ClientTimeout(total=ctx.deps.api_timeout),
         ) as response:
             if response.status == 200:
                 data = await response.json()
@@ -322,7 +287,7 @@ async def ask_agent(
 
     try:
         result = await tool_agent.run(question, deps=dependencies)
-        return result.data
+        return result.output
     finally:
         # Clean up session if we created it
         if dependencies.session and not dependencies.session.closed:

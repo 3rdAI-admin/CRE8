@@ -4,8 +4,8 @@ Configuration management using pydantic-settings.
 
 import os
 from typing import Optional
-from pydantic_settings import BaseSettings
-from pydantic import Field, field_validator, ConfigDict
+from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic import Field, field_validator
 from dotenv import load_dotenv
 
 # Load environment variables from .env file
@@ -15,7 +15,7 @@ load_dotenv()
 class Settings(BaseSettings):
     """Application settings with environment variable support."""
 
-    model_config = ConfigDict(
+    model_config = SettingsConfigDict(
         env_file=".env", env_file_encoding="utf-8", case_sensitive=False
     )
 
@@ -47,11 +47,11 @@ class Settings(BaseSettings):
 
 # Global settings instance
 try:
-    settings = Settings()
+    settings = Settings()  # type: ignore[call-arg]
 except Exception:
     # For testing, create settings with dummy values
     import os
 
     os.environ.setdefault("LLM_API_KEY", "test_key")
     os.environ.setdefault("BRAVE_API_KEY", "test_key")
-    settings = Settings()
+    settings = Settings()  # type: ignore[call-arg]

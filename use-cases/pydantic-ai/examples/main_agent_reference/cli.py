@@ -4,7 +4,7 @@
 import asyncio
 import sys
 import os
-from typing import List
+from typing import Any, List
 
 # Add parent directory to Python path for imports
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -54,8 +54,9 @@ Respond naturally and helpfully."""
 
                     # Stream model request events for real-time text
                     response_text = ""
+                    request_stream: Any
                     async with node.stream(run.ctx) as request_stream:
-                        async for event in request_stream:
+                        async for event in request_stream:  # type: ignore[union-attr]
                             # Handle different event types based on their type
                             event_type = type(event).__name__
 
@@ -75,7 +76,7 @@ Respond naturally and helpfully."""
                 elif Agent.is_call_tools_node(node):
                     # Stream tool execution events
                     async with node.stream(run.ctx) as tool_stream:
-                        async for event in tool_stream:
+                        async for event in tool_stream:  # type: ignore[assignment]
                             event_type = type(event).__name__
 
                             if event_type == "FunctionToolCallEvent":

@@ -38,6 +38,11 @@ warn_return_any = false
 warn_unused_ignores = false
 
 [tool.pytest.ini_options]
-testpaths = ["use-cases/pydantic-ai", "use-cases/agent-factory-with-subagents"]
+testpaths = ["use-cases/pydantic-ai"]
 asyncio_mode = "auto"
 addopts = "-v --tb=short"
+
+[dependency-groups]
+dev = [
+    "mypy>=1.19.1",
+]

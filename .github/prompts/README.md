@@ -22,7 +22,7 @@ Or manually enable in VS Code Settings:
 
 | Order | Command | Description | When to run |
 |-------|---------|-------------|-------------|
-| 1 | `/new-project` | Create a new project from the context-engineering template | When starting a new project |
+| 1 | `/new-project` | Create a new project from the template; **copies all slash commands** (`.github/`, `.cursor/`, `.claude/`, `.vscode/`) into the new project so you can open it and continue the workflow | When starting a new project |
 | 2 | `/generate-prp` | Generate a comprehensive PRP from INITIAL.md | For each feature or when requirements change |
 | 3 | `/generate-validate` | Analyze codebase and create **`/validate-project`** from example-validate | **Once, or after a significant project change** (run after planning, before building) |
 | 4 | `/build-prp` | **Finalize** PRP (review/edit), then optionally **build** and **run** the project | After you have a PRP; when you want to finalize the plan before implementing |

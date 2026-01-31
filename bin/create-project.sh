@@ -10,7 +10,7 @@ if [ -z "$1" ]; then
 fi
 
 PROJECT_PATH="$1"
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 # Check if directory already exists
 if [ -d "$PROJECT_PATH" ]; then
@@ -41,6 +41,8 @@ mkdir -p "$PROJECT_PATH/PRPs/prompts"
 mkdir -p "$PROJECT_PATH/PRPs/templates"
 mkdir -p "$PROJECT_PATH/examples"
 mkdir -p "$PROJECT_PATH/journal"
+# Starter journal index for progress tracking (resume after restart or IDE shutdown)
+echo "# Validation journal index" > "$PROJECT_PATH/journal/README.md"
 
 # Copy PRP templates
 cp -r "$SCRIPT_DIR/PRPs/templates/"* "$PROJECT_PATH/PRPs/templates/" 2>/dev/null || true

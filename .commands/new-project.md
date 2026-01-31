@@ -19,7 +19,7 @@ Then form the full path as `[location]/[name]` (e.g. `~/projects/daily-quote-app
 
 1. **Creates project folder** at the specified path
 2. **Copies AI configuration** (`.claude/`, `.github/`, `.vscode/`, `.cursor/`, `CLAUDE.md`, `.cursorrules`)
-3. **Sets up folder structure** (`PRPs/`, `PRPs/prompts/`, `PRPs/templates/`, `examples/`, `journal/`)
+3. **Sets up folder structure** (`PRPs/`, `PRPs/prompts/`, `PRPs/templates/`, `examples/`, `journal/`) and a starter **journal** index for progress tracking (resume after restart or unexpected IDE shutdown)
 4. **Copies PRP templates** for use in the new project
 5. **Creates blank INITIAL.md** ready to fill in
 6. **Creates .gitignore** with common patterns
@@ -52,7 +52,9 @@ mkdir -p "$PROJECT_PATH/PRPs/prompts"
 mkdir -p "$PROJECT_PATH/PRPs/templates"
 mkdir -p "$PROJECT_PATH/examples"
 mkdir -p "$PROJECT_PATH/journal"
+echo "# Validation journal index" > "$PROJECT_PATH/journal/README.md"
 ```
+(The journal is used by `/validate-project`, `/execute-prp`, and `/build-prp` to record progress so you can resume after a restart or unexpected IDE shutdown.)
 
 ### Step 3: Copy Template Files
 Copy from the context-engineering template (adjust source path as needed):

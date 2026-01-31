@@ -1,6 +1,6 @@
 # Daily Quote App – Sample INITIAL.md
 
-> Copy this into your new project's `INITIAL.md` when following the [Getting Started tutorial](../../tutorials/getting-started-walkthrough.md).
+> Copy this into your new project's `INITIAL.md` when following the [Getting Started tutorial](../../docs/tutorials/getting-started-walkthrough.md).
 
 ---
 

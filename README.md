@@ -27,7 +27,7 @@ This repo is a **workflow + a set of slash commands** that run inside your AI co
 
 | Order | Command | What it does | When to run |
 |-------|---------|--------------|-------------|
-| 1 | `/new-project` | Create a new project folder with this workflow preconfigured | When starting a new project |
+| 1 | `/new-project` | Create a new project folder with this workflow preconfigured; **copies all slash commands** (`.cursor/`, `.claude/`, `.github/`, `.vscode/`) into the new project so you can open it and continue with `/generate-prp`, `/execute-prp`, etc. | When starting a new project |
 | 2 | `/generate-prp` | Turn your idea (e.g. from `INITIAL.md`) into a detailed implementation plan (PRP) | For each feature or when you change requirements |
 | 3 | `/generate-validate` | Have the AI create **`/validate-project`** from [.claude/commands/example-validate.md](.claude/commands/example-validate.md) | **Once, or after a significant project change** (run after planning, before building) |
 | 4 | `/build-prp` | Review/finalize the PRP (edit if needed), then optionally build and run the project | After you have a PRP; when you want to finalize the plan before implementing |
@@ -68,7 +68,7 @@ The main idea is the **PRP** (Product Requirements Prompt): a single document th
 
 | Step | Command | You do this | The AI does this |
 |------|---------|-------------|------------------|
-| 1 | `/new-project` | Create project (or open existing) | Sets up folder and workflow files |
+| 1 | `/new-project` | Create project (or open existing) | Sets up folder, workflow files, and **all slash commands**—new project is ready to use |
 | 2 | — | Describe the feature in `INITIAL.md` | — |
 | 3 | `/generate-prp` | Run for each feature | Researches and writes a detailed plan (PRP) |
 | 4 | `/generate-validate` | Run **once or after significant change** | Creates **`/validate-project`** from example-validate template |
@@ -96,7 +96,7 @@ git clone https://github.com/coleam00/Context-Engineering-Intro.git
 cd Context-Engineering-Intro
 
 # 2. Run the interactive setup wizard
-./SETUP.sh
+./bin/setup.sh
 
 # 3. Choose your IDE(s):
 #    1) VS Code with GitHub Copilot
@@ -119,10 +119,10 @@ cd Context-Engineering-Intro
 
 **Command-line flags (macOS/Linux):**
 ```bash
-./SETUP.sh --vscode   # VS Code only
-./SETUP.sh --claude   # Claude Code only
-./SETUP.sh --cursor   # Cursor only
-./SETUP.sh --all      # All IDEs
+./bin/setup.sh --vscode   # VS Code only
+./bin/setup.sh --claude   # Claude Code only
+./bin/setup.sh --cursor   # Cursor only
+./bin/setup.sh --all      # All IDEs
 ```
 
 **Command-line flags (Windows):**
@@ -142,8 +142,12 @@ Once set up, create new projects from this template:
 ./create-project.sh ~/projects/my-new-app
 
 # Open in your IDE and start building!
-code ~/projects/my-new-app
+code ~/projects/my-new-app   # or: cursor .  or  claude .
 ```
+
+**Note:** `/new-project` (or `create-project.sh`) copies **all slash-command config** (`.cursor/`, `.claude/`, `.github/`, `.vscode/`) into the new project. The new project is **ready to use**—open it in your IDE and run `/generate-prp`, `/execute-prp`, `/validate-project`, etc. No extra install step is needed.
+
+The new project also includes a **`journal/`** folder (with a starter index). When you run `/validate-project`, `/execute-prp`, or `/build-prp`, the AI appends progress to `journal/YYYY-MM-DD.md` and updates `journal/README.md`. Use the journal to see where you left off and resume after a computer restart or unexpected IDE shutdown.
 
 ### Option A: VS Code with GitHub Copilot
 
@@ -153,7 +157,7 @@ git clone https://github.com/coleam00/Context-Engineering-Intro.git
 cd Context-Engineering-Intro
 
 # 2. Run the setup script (installs extensions & configures settings)
-./SETUP-VSCODE.sh
+./bin/setup-vscode.sh
 
 # 3. Open in VS Code
 code .
@@ -174,7 +178,7 @@ git clone https://github.com/coleam00/Context-Engineering-Intro.git
 cd Context-Engineering-Intro
 
 # 2. Run the setup script (verifies installation & configures permissions)
-./SETUP-CLAUDE.sh
+./bin/setup-claude.sh
 
 # 3. Open this repo in Claude Code (slash commands come from .claude/skills/ in the open project)
 claude .
@@ -187,8 +191,7 @@ claude .
 /validate
 ```
 
-**Using a different project (e.g. one you created with `/new-project`)?**  
-Slash commands must be in that project. From the template repo run `./install-claude-commands.sh` and enter the project path when prompted (or pass it: `./install-claude-commands.sh /path/to/project`). Then open that project in Claude Code and restart.
+**Using a different project?** Projects **created with `/new-project`** already have all slash commands copied in—just open that project in Claude Code and use `/generate-prp`, `/execute-prp`, etc. For an **existing** project that was *not* created from this template, run from the template repo: `./install-claude-commands.sh` and enter the project path (or `./install-claude-commands.sh /path/to/project`). Then open that project in Claude Code and restart.
 
 ### Option C: Cursor
 
@@ -198,7 +201,7 @@ git clone https://github.com/coleam00/Context-Engineering-Intro.git
 cd Context-Engineering-Intro
 
 # 2. Run the setup script (creates AI rules & settings)
-./SETUP-CURSOR.sh
+./bin/setup-cursor.sh
 
 # 3. Open in Cursor
 cursor .
@@ -264,7 +267,7 @@ This template supports **VS Code (GitHub Copilot), Claude Code, and Cursor** wit
 
 | Feature | VS Code | Claude Code | Cursor |
 |---------|---------|-------------|--------|
-| Setup | `./SETUP-VSCODE.sh` | `./SETUP-CLAUDE.sh` | `./SETUP-CURSOR.sh` |
+| Setup | `./bin/setup-vscode.sh` | `./bin/setup-claude.sh` | `./bin/setup-cursor.sh` |
 | Instructions | `.github/copilot-instructions.md` | `CLAUDE.md` | `.cursorrules` |
 | Slash Commands | `.github/prompts/*.prompt.md` | `.claude/commands/*.md` | `.cursor/prompts/*.md` |
 | Settings | `.vscode/settings.json` | `.claude/settings.local.json` | `.cursor/settings.json` |
@@ -319,32 +322,28 @@ context-engineering-intro/
 │   ├── settings.json          # Cursor workspace settings
 │   └── README.md              # Cursor setup documentation
 ├── .cursorrules               # Cursor AI rules file
-├── tutorials/                 # Learning resources
-│   ├── getting-started-walkthrough.md  # Beginner tutorial
+├── bin/                       # All setup and utility scripts
+│   ├── setup.sh               # Unified interactive setup
+│   ├── setup-vscode.sh        # VS Code setup
+│   ├── setup-claude.sh        # Claude Code setup
+│   ├── setup-cursor.sh        # Cursor setup
+│   ├── create-project.sh      # Create new project from template
+│   ├── sync-commands.sh       # Sync commands across IDEs
+│   └── install-dev-tools.sh   # Install dev dependencies
+├── docs/                      # Documentation
+│   ├── overview.md            # One-page workflow summary
+│   ├── tutorials/             # Learning resources
+│   └── validation/            # Validation command resources
+├── examples/                  # Example projects
 │   └── daily-quote-app/       # Tutorial sample project
-├── PRPs/
-│   ├── templates/
-│   │   └── prp_base.md        # Base template for PRPs
-│   ├── prompts/               # Generated prompts from /generate-prompt
-│   └── EXAMPLE_multi_agent_prp.md  # Example of a complete PRP
-├── use-cases/                 # Specialized templates
+├── PRPs/                      # Project plans
+│   └── templates/             # PRD and PRP templates
+├── use-cases/                 # Reference implementations
 │   ├── pydantic-ai/           # PydanticAI agent development
-│   ├── mcp-server/            # Cloudflare Workers MCP servers
-│   ├── agent-factory-with-subagents/  # Multi-agent orchestration
-│   ├── ai-coding-workflows-foundation/ # Planning/Implementation/Validation
-│   └── template-generator/    # Creating new templates
-├── validation/                # Validation command resources
-├── examples/                  # Your code examples (critical!)
-├── journal/                   # Daily validation journal (tracking and support)
-├── CLAUDE.md                  # Global rules for AI assistant
-├── INITIAL.md                 # Template for feature requests
-├── INITIAL_EXAMPLE.md         # Example feature request
-├── create-project.sh          # Create new project from template
-├── SETUP.sh                   # Unified interactive setup
-├── SETUP-VSCODE.sh            # VS Code setup script
-├── SETUP-CLAUDE.sh            # Claude Code setup (verify in this repo)
-├── install-claude-commands.sh  # Copy .claude/commands + .claude/skills into another project (prompts for path if run with no args)
-├── SETUP-CURSOR.sh            # Cursor setup script
+│   └── mcp-server/            # MCP server template
+├── journal/                   # Validation journal (progress tracking; resume after restart or IDE shutdown)
+├── CLAUDE.md                  # AI assistant rules
+├── INITIAL.md                 # Feature request template
 └── README.md                  # This file
 ```
 
@@ -356,7 +355,7 @@ VS Code, Claude Code, and Cursor all support these slash commands:
 
 | Order | Command | Description | When to run |
 |-------|---------|-------------|-------------|
-| 1 | `/new-project` | Create a new project from the context-engineering template | When starting a new project |
+| 1 | `/new-project` | Create a new project from the template; **copies all slash commands** into the new project so you can open it and finish the workflow | When starting a new project |
 | 2 | `/generate-prp` | Generate a comprehensive PRP from an INITIAL.md file | For each feature or when requirements change |
 | 3 | `/generate-validate` | Analyze codebase and create **`/validate-project`** from [.claude/commands/example-validate.md](.claude/commands/example-validate.md) | **Once, or after a significant project change** (run after planning, before building) |
 | 4 | `/build-prp` | **Review/finalize** the PRP (edit if needed), then optionally **build** and **run** the project | After you have a PRP; when you want to finalize the plan before implementing |
@@ -730,7 +729,7 @@ When creating your own project, organize examples like this:
 ```
 your-project/
 ├── examples/           # Your reference examples
-├── journal/            # Daily validation journal (created by /validate-project, /execute-prp, /build-prp)
+├── journal/            # Daily validation journal (progress tracking; populated by /validate-project, /execute-prp, /build-prp—resume after restart or IDE shutdown)
 │   ├── README.md       # Explains what each example demonstrates
 │   ├── cli.py          # CLI implementation pattern
 │   ├── agent/          # Agent architecture patterns
@@ -852,7 +851,7 @@ python app.py
 
 **"Permission denied" when running scripts**
 ```bash
-chmod +x SETUP*.sh create-project.sh install-claude-commands.sh
+chmod +x SETUP*.sh bin/create-project.sh install-claude-commands.sh
 ```
 
 **Scripts fail with "command not found"**
@@ -867,8 +866,8 @@ chmod +x SETUP*.sh create-project.sh install-claude-commands.sh
 - Restart VS Code after installation
 
 **Claude Code: Commands not appearing in the `/` menu**
-- Slash commands come from **`.claude/skills/`** in the **project you have open**. If you're in a different project (e.g. a project you created with `/new-project` earlier), that project needs its own copy of commands and skills.
-- **To install the 7 commands into an existing project**, run from the template repo:
+- Slash commands come from **`.claude/skills/`** in the **project you have open**. Projects **created with `/new-project`** already have the commands—just open that project. For an **existing** project not created from this template:
+- **To install the 7 commands into that existing project**, run from the template repo:
   ```bash
   cd /path/to/context-engineering
   ./install-claude-commands.sh
@@ -880,7 +879,7 @@ chmod +x SETUP*.sh create-project.sh install-claude-commands.sh
 **Cursor: Prompts not available**
 - Ensure `.cursor/prompts/*.md` files exist
 - Check Cursor AI features are enabled in settings
-- Run `./SETUP-CURSOR.sh` to verify configuration
+- Run `./bin/setup-cursor.sh` to verify configuration
 
 ## Resources
 

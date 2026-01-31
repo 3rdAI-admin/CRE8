@@ -46,9 +46,9 @@ def get_template_files() -> List[Tuple[str, str]]:
     # Claude commands directory
     commands_dir = template_root / ".claude" / "commands"
     if commands_dir.exists():
-        for file in commands_dir.glob("*.md"):
-            rel_path = f".claude/commands/{file.name}"
-            files_to_copy.append((str(file), rel_path))
+        for cmd_file in commands_dir.glob("*.md"):
+            rel_path = f".claude/commands/{cmd_file.name}"
+            files_to_copy.append((str(cmd_file), rel_path))
 
     # PRPs directory
     prps_dir = template_root / "PRPs"
@@ -56,9 +56,9 @@ def get_template_files() -> List[Tuple[str, str]]:
         # Copy templates subdirectory
         templates_dir = prps_dir / "templates"
         if templates_dir.exists():
-            for file in templates_dir.glob("*.md"):
-                rel_path = f"PRPs/templates/{file.name}"
-                files_to_copy.append((str(file), rel_path))
+            for tmpl_file in templates_dir.glob("*.md"):
+                rel_path = f"PRPs/templates/{tmpl_file.name}"
+                files_to_copy.append((str(tmpl_file), rel_path))
 
         # Copy INITIAL.md example
         initial_file = prps_dir / "INITIAL.md"
@@ -71,10 +71,10 @@ def get_template_files() -> List[Tuple[str, str]]:
         for example_dir in examples_dir.iterdir():
             if example_dir.is_dir():
                 # Copy all files in each example directory
-                for file in example_dir.rglob("*"):
-                    if file.is_file():
-                        rel_path = file.relative_to(template_root)
-                        files_to_copy.append((str(file), str(rel_path)))
+                for example_file in example_dir.rglob("*"):
+                    if example_file.is_file():
+                        example_rel_path = str(example_file.relative_to(template_root))
+                        files_to_copy.append((str(example_file), example_rel_path))
 
     return files_to_copy
 

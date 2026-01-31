@@ -43,7 +43,7 @@ This script will:
 
 | Order | Command | Description |
 |-------|---------|-------------|
-| 1 | `/new-project` | Create a new project from the context-engineering template |
+| 1 | `/new-project` | Create a new project from the template; **copies all slash commands** into the new project—open it and continue with `/generate-prp`, etc. |
 | 2 | `/generate-prp` | Generate a comprehensive PRP from INITIAL.md |
 | 3 | `/generate-validate` | Analyze codebase and create **`/validate-project`** (once or after significant change) |
 | 4 | `/build-prp` | Finalize PRP (review/edit), then optionally build and run (before implementing) |

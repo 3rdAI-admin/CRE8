@@ -3,7 +3,7 @@ Structured Output Agent for Data Validation
 
 Demonstrates when to use structured outputs with PydanticAI:
 - Environment-based model configuration (following main_agent_reference)
-- Structured output validation with Pydantic models (result_type specified)
+- Structured output validation with Pydantic models (output_type specified)
 - Data extraction and validation use case
 - Professional report generation with consistent formatting
 """
@@ -11,49 +11,13 @@ Demonstrates when to use structured outputs with PydanticAI:
 import logging
 from dataclasses import dataclass
 from typing import Optional, List
-from pydantic_settings import BaseSettings
 from pydantic import BaseModel, Field
 from pydantic_ai import Agent, RunContext
-from pydantic_ai.providers.openai import OpenAIProvider
-from pydantic_ai.models.openai import OpenAIModel
-from dotenv import load_dotenv
 
-# Load environment variables
-load_dotenv()
+# Import shared configuration
+from ..shared import get_llm_model
 
 logger = logging.getLogger(__name__)
-
-
-class Settings(BaseSettings):
-    """Configuration settings for the structured output agent."""
-
-    # LLM Configuration
-    llm_provider: str = Field(default="openai")
-    llm_api_key: str = Field(...)
-    llm_model: str = Field(default="gpt-4")
-    llm_base_url: str = Field(default="https://api.openai.com/v1")
-
-    class Config:
-        env_file = ".env"
-        case_sensitive = False
-
-
-def get_llm_model() -> OpenAIModel:
-    """Get configured LLM model from environment settings."""
-    try:
-        settings = Settings()
-        provider = OpenAIProvider(
-            base_url=settings.llm_base_url, api_key=settings.llm_api_key
-        )
-        return OpenAIModel(settings.llm_model, provider=provider)
-    except Exception:
-        # For testing without env vars
-        import os
-
-        os.environ.setdefault("LLM_API_KEY", "test-key")
-        settings = Settings()
-        provider = OpenAIProvider(base_url=settings.llm_base_url, api_key="test-key")
-        return OpenAIModel(settings.llm_model, provider=provider)
 
 
 @dataclass
@@ -81,7 +45,7 @@ class DataAnalysisReport(BaseModel):
     # Required fields
     summary: str = Field(description="Executive summary of the analysis")
     key_insights: List[DataInsight] = Field(
-        min_items=1, max_items=10, description="Key insights discovered in the data"
+        min_length=1, max_length=10, description="Key insights discovered in the data"
     )
 
     # Validated fields
@@ -124,11 +88,11 @@ Guidelines:
 """
 
 
-# Create structured output agent - NOTE: result_type specified for data validation
+# Create structured output agent - NOTE: output_type specified for data validation
 structured_agent = Agent(
     get_llm_model(),
     deps_type=AnalysisDependencies,
-    result_type=DataAnalysisReport,  # This is when we DO want structured output
+    output_type=DataAnalysisReport,  # This is when we DO want structured output
     system_prompt=SYSTEM_PROMPT,
 )
 
@@ -203,7 +167,7 @@ async def analyze_data(
         dependencies = AnalysisDependencies()
 
     result = await structured_agent.run(data_input, deps=dependencies)
-    return result.data
+    return result.output
 
 
 def analyze_data_sync(

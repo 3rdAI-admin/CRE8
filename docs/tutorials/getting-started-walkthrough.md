@@ -60,7 +60,7 @@ Think of them as **ordered steps** so the AI has the right context at each stage
 
 1. **Python 3.8+** — [Download Python](https://www.python.org/downloads/)
 2. **An IDE** with these commands (VS Code with Copilot, Claude Code, or Cursor)
-3. **Context Engineering template** — Clone and set up (see [README](../README.md))
+3. **Context Engineering template** — Clone and set up (see [README](../../README.md))
 4. **Unsplash API key (optional)** — Free at [unsplash.com/developers](https://unsplash.com/developers). Without it, the app uses Picsum Photos for backgrounds.
 
 ---
@@ -142,7 +142,7 @@ For custom background images from Unsplash:
 
 In your **new project folder**, open `INITIAL.md` and describe what you want to build.
 
-**Full example:** A complete `INITIAL.md` for the Daily Quote app is in [examples/daily-quote-app/INITIAL.md](../examples/daily-quote-app/INITIAL.md). Copy it into your project's `INITIAL.md`, or adapt it.
+**Full example:** A complete `INITIAL.md` for the Daily Quote app is in [examples/daily-quote-app/INITIAL.md](../../examples/daily-quote-app/INITIAL.md). Copy it into your project's `INITIAL.md`, or adapt it.
 
 **Summary of what to include:**
 
@@ -365,9 +365,9 @@ For each new feature, repeat: update `INITIAL.md` (or PRD) → `/generate-prp` �
 
 ## More Resources
 
-- [OVERVIEW](../OVERVIEW.md) — One-page workflow summary
-- [README](../README.md) — Full template and setup
+- [overview.md](../overview.md) — One-page workflow summary
+- [README](../../README.md) — Full template and setup
 - [Tutorials README](README.md) — Tutorial index and command order
-- [PRPs/templates/](../PRPs/templates/) — PRD and PRP templates
+- [PRPs/templates/](../../PRPs/templates/) — PRD and PRP templates
 
 Happy building.

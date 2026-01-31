@@ -16,7 +16,7 @@ Learn the Context Engineering process through a hands-on User Tutorial.
 - **Full workflow:** `/new-project` → describe in `INITIAL.md` → `/generate-prd` → `/generate-prp` → `/generate-validate` → `/build-prp` (optional) → `/execute-prp` → `/validate-project` → `/summarize`.
 - **Commands in order:** All 9 commands (PRD, PRP, generate-validate, build-prp, execute-prp, validate-project, summarize, plus generate-prompt for quick tasks).
 
-### Command Order (from [OVERVIEW](../OVERVIEW.md))
+### Command Order (from [overview.md](../overview.md))
 
 | Order | Command | When to run |
 |-------|---------|-------------|
@@ -33,10 +33,10 @@ Learn the Context Engineering process through a hands-on User Tutorial.
 
 ## Sample INITIAL.md
 
-The tutorial references a full `INITIAL.md` for the Daily Quote app. A copy you can paste from is in [examples/daily-quote-app/INITIAL.md](../examples/daily-quote-app/INITIAL.md).
+The tutorial references a full `INITIAL.md` for the Daily Quote app. A copy you can paste from is in [examples/daily-quote-app/INITIAL.md](../../examples/daily-quote-app/INITIAL.md).
 
 ## More Resources
 
-- [OVERVIEW.md](../OVERVIEW.md) — One-page summary of the workflow
-- [README.md](../README.md) — Full template documentation and setup
-- [PRPs/templates/](../PRPs/templates/) — PRD and PRP templates
+- [overview.md](../overview.md) — One-page summary of the workflow
+- [README.md](../../README.md) — Full template documentation and setup
+- [PRPs/templates/](../../PRPs/templates/) — PRD and PRP templates

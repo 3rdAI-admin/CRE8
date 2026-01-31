@@ -49,7 +49,7 @@ async def search_web_tool(
 
     headers = {"X-Subscription-Token": api_key, "Accept": "application/json"}
 
-    params = {"q": query, "count": count, "offset": offset}
+    params: Dict[str, Any] = {"q": query, "count": count, "offset": offset}
 
     if country:
         params["country"] = country

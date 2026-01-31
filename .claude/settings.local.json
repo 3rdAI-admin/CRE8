@@ -22,7 +22,14 @@
       "Bash(do cp \".claude/commands/$cmd.md\" \".commands/$cmd.md\")",
       "Bash(echo:*)",
       "Bash(done)",
-      "Bash(./sync-commands.sh:*)"
+      "Bash(./sync-commands.sh:*)",
+      "Bash(for cmd in generate-prp execute-prp generate-prompt validate-project generate-validate new-project build-prp)",
+      "Bash(do grep -q \"$cmd\" README.md)",
+      "Bash(uv run mypy:*)",
+      "Bash(npm uninstall:*)",
+      "Bash(uv add:*)",
+      "Bash(uv sync:*)",
+      "Bash(uv run:*)"
     ],
     "deny": [],
     "additionalDirectories": [
