@@ -54,6 +54,8 @@ This use case teaches you how to:
 
 ## 📋 How It Works - The PRP Process for MCP Servers
 
+The main context-engineering template uses this **execution order**: `/generate-prp` → `/generate-validate` (once) → `/build-prp` (optional) → `/execute-prp` → **`/validate-project`**. This use case follows the same flow with MCP-specific commands. Use **`/validate-project`** (not `/validate`) to avoid injected commands.
+
 > **Step 1 is the Quick Start setup above** - clone repo, copy template, install dependencies, setup Wrangler
 
 ### Step 2: Define Your MCP Server

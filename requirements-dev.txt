@@ -1,0 +1,32 @@
+# Development dependencies for Context Engineering Template
+# Install with: pip install -r requirements-dev.txt
+# Or with uv: uv pip install -r requirements-dev.txt
+
+# Code quality and linting
+ruff>=0.3.0              # Fast Python linter and formatter (replaces flake8, black, isort)
+mypy>=1.8.0              # Static type checker
+pylint>=3.0.0            # Additional code analysis
+
+# Testing
+pytest>=8.0.0            # Test framework
+pytest-cov>=4.1.0        # Coverage plugin for pytest
+pytest-asyncio>=0.23.0   # Async test support
+pytest-mock>=3.12.0      # Mocking plugin
+
+# Use-case dependencies (for /validate-project --thorough)
+pydantic-ai>=0.0.18     # PydanticAI agents (pydantic-ai, agent-factory-with-subagents use-cases)
+
+# Pre-commit hooks
+pre-commit>=3.6.0        # Git hooks framework
+
+# Documentation
+markdown-it-py>=3.0.0    # Markdown parser
+mdit-py-plugins>=0.4.0   # Markdown plugins
+
+# Type stubs for common libraries
+types-requests>=2.31.0
+types-PyYAML>=6.0.0
+
+# Optional but useful
+ipython>=8.20.0          # Better Python REPL
+rich>=13.7.0             # Beautiful terminal output

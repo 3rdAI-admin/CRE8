@@ -17,8 +17,16 @@
       "Bash(python -m pytest:*)",
       "Bash(python3 -m pytest:*)",
       "WebFetch(domain:docs.anthropic.com)",
-      "WebFetch(domain:github.com)"
+      "WebFetch(domain:github.com)",
+      "Bash(for cmd in generate-prp execute-prp build-prp generate-prompt generate-validate new-project summarize generate-prd validate-project)",
+      "Bash(do cp \".claude/commands/$cmd.md\" \".commands/$cmd.md\")",
+      "Bash(echo:*)",
+      "Bash(done)",
+      "Bash(./sync-commands.sh:*)"
     ],
-    "deny": []
+    "deny": [],
+    "additionalDirectories": [
+      "/Users/james/AI_Dev/context-engineering/!archive"
+    ]
   }
 }

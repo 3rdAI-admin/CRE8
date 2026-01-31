@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Daily Quote</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <div class="bg" id="bg"></div>
+  <div class="overlay"></div>
+
+  <header class="header">
+    <nav class="categories" id="categories">
+      <button type="button" class="pill active" data-category="">All</button>
+      {% for cat in categories %}
+      <button type="button" class="pill" data-category="{{ cat }}">{{ 'A.I.' if cat == 'ai' else cat|capitalize }}</button>
+      {% endfor %}
+      <button type="button" class="pill favorites-btn" id="favorites-btn">Favorites</button>
+    </nav>
+  </header>
+
+  <main class="main">
+    <section class="quote-card" id="quote-card">
+      <blockquote class="quote-text" id="quote-text">Loading…</blockquote>
+      <cite class="author" id="author">—</cite>
+      <div class="actions">
+        <button type="button" class="btn heart" id="heart" aria-label="Save to favorites">♡</button>
+        <button type="button" class="btn primary" id="new-quote">New Quote</button>
+      </div>
+    </section>
+
+    <section class="favorites-view hidden" id="favorites-view">
+      <h2>Your Favorites</h2>
+      <ul class="favorites-list" id="favorites-list"></ul>
+      <button type="button" class="btn secondary" id="back-to-quote">Back to Quote</button>
+    </section>
+  </main>
+
+  <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>

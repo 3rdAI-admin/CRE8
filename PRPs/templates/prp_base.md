@@ -79,7 +79,24 @@ Examples:
 
 ```
 
-### list of tasks to be completed to fullfill the PRP in the order they should be completed
+### Multi-agent task breakdown (small tasks for accuracy)
+
+Break the work into **small, assignable tasks** so multiple agents (or sequential passes) can execute with high accuracy. Each task should be 1–2 hours of work, single-responsibility, and testable.
+
+```yaml
+# Task ID | Scope | Assignable unit | Acceptance
+Task 1   | Data models only        | Agent/Pass 1 | Models validate; mypy passes
+Task 2   | API routes + handlers   | Agent/Pass 2 | Routes return 200 for happy path
+Task 3   | Tests for Task 1+2      | Agent/Pass 3 | pytest passes
+Task 4   | Integration + docs    | Agent/Pass 4 | E2E or manual check passes
+...
+```
+
+- **Scope:** What this task owns (files, layer, or feature slice).
+- **Assignable unit:** Suitable for one agent or one focused execution pass.
+- **Acceptance:** How to verify the task is done (command or checklist).
+
+### List of tasks to be completed (in order)
 
 ```yaml
 Task 1:

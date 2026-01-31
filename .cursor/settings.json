@@ -1,0 +1,21 @@
+{
+  "typescript.tsserver.experimental.enableProjectDiagnostics": true,
+  "cursor.chat.enableAgent": true,
+  "cursor.composer.enabled": true,
+  "cursor.aipreview.enabled": true,
+  "cursor.chat.enablePrompts": true,
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": null,
+  "[python]": {
+    "editor.defaultFormatter": "ms-python.black-formatter"
+  },
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[javascript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[markdown]": {
+    "editor.wordWrap": "on"
+  }
+}

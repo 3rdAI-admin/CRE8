@@ -39,7 +39,7 @@ This template provides everything you need to build sophisticated Pydantic AI ag
 
 ## 🎯 PRP Framework Workflow
 
-This template uses a 3-step context engineering workflow for building AI agents:
+This template uses a 3-step context engineering workflow for building AI agents. (The main context-engineering template uses this execution order: `/generate-prp` → `/generate-validate` → `/build-prp` → `/execute-prp` → **`/validate-project`**.)
 
 ### 1. **Define Requirements** (`PRPs/INITIAL.md`)
 Start by clearly defining what your agent needs to do:

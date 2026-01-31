@@ -56,17 +56,11 @@ export interface ParsedApprovalResult {
 export const ListTablesSchema = {};
 
 export const QueryDatabaseSchema = {
-  sql: z
-    .string()
-    .min(1, "SQL query cannot be empty")
-    .describe("SQL query to execute (SELECT queries only)"),
+  sql: z.string().min(1, "SQL query cannot be empty").describe("SQL query to execute (SELECT queries only)"),
 };
 
 export const ExecuteDatabaseSchema = {
-  sql: z
-    .string()
-    .min(1, "SQL command cannot be empty")
-    .describe("SQL command to execute (INSERT, UPDATE, DELETE, CREATE, etc.)"),
+  sql: z.string().min(1, "SQL command cannot be empty").describe("SQL command to execute (INSERT, UPDATE, DELETE, CREATE, etc.)"),
 };
 
 // MCP response types
@@ -87,10 +81,12 @@ export function createSuccessResponse(message: string, data?: any): McpResponse 
     text += `\n\n**Result:**\n\`\`\`json\n${JSON.stringify(data, null, 2)}\n\`\`\``;
   }
   return {
-    content: [{
-      type: "text",
-      text,
-    }],
+    content: [
+      {
+        type: "text",
+        text,
+      },
+    ],
   };
 }
 
@@ -100,11 +96,13 @@ export function createErrorResponse(message: string, details?: any): McpResponse
     text += `\n\n**Details:**\n\`\`\`json\n${JSON.stringify(details, null, 2)}\n\`\`\``;
   }
   return {
-    content: [{
-      type: "text",
-      text,
-      isError: true,
-    }],
+    content: [
+      {
+        type: "text",
+        text,
+        isError: true,
+      },
+    ],
   };
 }
 

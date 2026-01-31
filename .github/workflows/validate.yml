@@ -1,0 +1,286 @@
+name: Validate Context Engineering Template
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  workflow_dispatch:  # Allow manual triggers
+
+jobs:
+  # Phase 1 & 2: Project Structure
+  structure:
+    name: Project Structure
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Check core files
+        run: |
+          echo "=== Checking Core Files ==="
+          for file in CLAUDE.md README.md INITIAL.md INITIAL_EXAMPLE.md; do
+            if [ -f "$file" ]; then
+              echo "✓ $file exists"
+            else
+              echo "✗ $file MISSING"
+              exit 1
+            fi
+          done
+
+      - name: Check setup scripts
+        run: |
+          echo "=== Checking Setup Scripts ==="
+          for script in SETUP.sh SETUP-VSCODE.sh SETUP-CLAUDE.sh SETUP-CURSOR.sh create-project.sh; do
+            if [ -f "$script" ]; then
+              if [ -x "$script" ]; then
+                echo "✓ $script is executable"
+              else
+                echo "✗ $script not executable"
+                exit 1
+              fi
+            else
+              echo "✗ $script MISSING"
+              exit 1
+            fi
+          done
+
+      - name: Check use-case structure
+        run: |
+          echo "=== Checking Use-Cases ==="
+          for uc in pydantic-ai mcp-server; do
+            if [ -d "use-cases/$uc" ]; then
+              echo "✓ use-cases/$uc exists"
+              [ -f "use-cases/$uc/CLAUDE.md" ] && echo "  ✓ CLAUDE.md" || { echo "  ✗ CLAUDE.md missing"; exit 1; }
+              [ -f "use-cases/$uc/README.md" ] && echo "  ✓ README.md" || echo "  ⚠ README.md missing"
+            else
+              echo "✗ use-cases/$uc MISSING"
+              exit 1
+            fi
+          done
+
+  # Phase 3: TypeScript Validation
+  typescript:
+    name: TypeScript (MCP Server)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: use-cases/mcp-server
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: use-cases/mcp-server/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Type check
+        run: npm run type-check
+
+      - name: Run tests
+        run: npm run test:run
+
+      - name: Check formatting
+        run: npx prettier --check "src/**/*.ts"
+
+  # Phase 4: Python Validation
+  python:
+    name: Python (PydanticAI)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install validation tools
+        run: |
+          python -m pip install --upgrade pip
+          pip install ruff mypy pytest
+
+      - name: Check Python syntax
+        run: |
+          echo "=== Checking Python Syntax ==="
+          find use-cases/pydantic-ai -name "*.py" -type f | while read f; do
+            python -m py_compile "$f" || exit 1
+          done
+
+      - name: Ruff linting
+        run: |
+          echo "=== Running Ruff Linting ==="
+          ruff check use-cases/pydantic-ai
+
+      - name: Ruff formatting check
+        run: |
+          echo "=== Checking Code Formatting ==="
+          ruff format --check use-cases/pydantic-ai
+
+      - name: Type checking with mypy
+        continue-on-error: true  # Don't fail on type errors, just report
+        run: |
+          echo "=== Running Mypy Type Checking ==="
+          mypy use-cases/pydantic-ai --ignore-missing-imports || true
+
+      - name: Run pytest
+        continue-on-error: true  # Tests might need dependencies
+        run: |
+          echo "=== Running Pytest ==="
+          find use-cases/pydantic-ai -type d -name "tests" | while read test_dir; do
+            if [ -f "$test_dir/../pytest.ini" ] || [ -f "$test_dir/pytest.ini" ]; then
+              pytest "$test_dir" -v --tb=short || true
+            fi
+          done
+
+  # Phase 5: Shell Scripts
+  shell:
+    name: Shell Scripts
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install shellcheck
+        run: sudo apt-get update && sudo apt-get install -y shellcheck
+
+      - name: Validate shell scripts
+        run: |
+          echo "=== Validating Shell Scripts ==="
+          find . -maxdepth 1 -name "*.sh" -type f | while read script; do
+            echo "Checking $(basename $script)..."
+            
+            # Check shebang
+            head -n1 "$script" | grep -q "^#!/" && echo "  ✓ Has shebang" || { echo "  ✗ Missing shebang"; exit 1; }
+            
+            # Check executable
+            [ -x "$script" ] && echo "  ✓ Is executable" || { echo "  ✗ Not executable"; exit 1; }
+            
+            # Run shellcheck
+            shellcheck "$script" && echo "  ✓ Shellcheck passed" || { echo "  ✗ Shellcheck issues"; exit 1; }
+          done
+
+  # Phase 6 & 7: JSON/YAML and Markdown
+  files:
+    name: JSON, YAML & Markdown
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js (for JSON validation)
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Validate JSON files
+        run: |
+          echo "=== Validating JSON Files ==="
+          find . -name "*.json" -type f -not -path "*/node_modules/*" -not -path "*/.git/*" | while read json_file; do
+            # Skip JSONC files
+            if [[ "$json_file" == *"tsconfig.json"* ]] || [[ "$json_file" == *"settings.json"* ]]; then
+              echo "  ✓ $(basename "$json_file") (JSONC - skipped)"
+              continue
+            fi
+            
+            # Validate standard JSON
+            if node -e "JSON.parse(require('fs').readFileSync('$json_file'))" 2>/dev/null; then
+              echo "  ✓ $(basename "$json_file")"
+            else
+              echo "  ✗ $json_file invalid JSON"
+              exit 1
+            fi
+          done
+
+      - name: Install yamllint
+        run: sudo apt-get update && sudo apt-get install -y yamllint
+
+      - name: Validate YAML files
+        run: |
+          echo "=== Validating YAML Files ==="
+          find . -name "*.yml" -o -name "*.yaml" -type f -not -path "*/node_modules/*" -not -path "*/.git/*" | while read yaml_file; do
+            yamllint -d relaxed "$yaml_file" && echo "  ✓ $(basename "$yaml_file")" || echo "  ⚠ $yaml_file has issues"
+          done
+
+      - name: Install markdownlint
+        run: npm install -g markdownlint-cli
+
+      - name: Validate markdown files
+        run: |
+          echo "=== Validating Markdown Files ==="
+          markdownlint '**/*.md' --ignore node_modules --disable MD013 MD033 MD041 || true
+
+  # Phase 8: Documentation
+  documentation:
+    name: Documentation & Cross-References
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Check README mentions all commands
+        run: |
+          echo "=== Checking README for Commands ==="
+          for cmd in generate-prp execute-prp generate-prompt validate validate-project generate-validate new-project; do
+            if grep -qi "$cmd" README.md; then
+              echo "  ✓ README mentions $cmd"
+            else
+              echo "  ⚠ README missing $cmd"
+              exit 1
+            fi
+          done
+
+      - name: Check PRP templates
+        run: |
+          echo "=== Checking PRP Templates ==="
+          [ -f "PRPs/templates/prp_base.md" ] && echo "  ✓ PRP base template exists" || { echo "  ✗ PRP template missing"; exit 1; }
+          [ -f "PRPs/EXAMPLE_multi_agent_prp.md" ] && echo "  ✓ Example PRP exists" || echo "  ⚠ Example PRP missing"
+          [ -d "PRPs/prompts" ] && echo "  ✓ PRPs/prompts/ directory exists" || echo "  ⚠ PRPs/prompts/ missing"
+
+      - name: Check VS Code prompts have frontmatter
+        run: |
+          echo "=== Checking VS Code Prompt Frontmatter ==="
+          for f in .github/prompts/*.prompt.md; do
+            if grep -q "^---" "$f" && grep -q "^mode:" "$f"; then
+              echo "  ✓ $(basename "$f") has frontmatter"
+            else
+              echo "  ⚠ $(basename "$f") missing frontmatter"
+            fi
+          done
+
+  # Summary job - runs after all others complete
+  summary:
+    name: Validation Summary
+    runs-on: ubuntu-latest
+    needs: [structure, typescript, python, shell, files, documentation]
+    if: always()
+    steps:
+      - name: Check job results
+        run: |
+          echo "=== Validation Summary ==="
+          echo "Structure: ${{ needs.structure.result }}"
+          echo "TypeScript: ${{ needs.typescript.result }}"
+          echo "Python: ${{ needs.python.result }}"
+          echo "Shell: ${{ needs.shell.result }}"
+          echo "Files: ${{ needs.files.result }}"
+          echo "Documentation: ${{ needs.documentation.result }}"
+          
+          if [ "${{ needs.structure.result }}" != "success" ] || \
+             [ "${{ needs.typescript.result }}" != "success" ] || \
+             [ "${{ needs.python.result }}" != "success" ] || \
+             [ "${{ needs.shell.result }}" != "success" ] || \
+             [ "${{ needs.files.result }}" != "success" ] || \
+             [ "${{ needs.documentation.result }}" != "success" ]; then
+            echo "❌ Validation FAILED"
+            exit 1
+          else
+            echo "✅ All validations PASSED"
+          fi

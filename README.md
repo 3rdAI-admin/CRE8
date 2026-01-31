@@ -1,43 +1,239 @@
 # Context Engineering Template
 
-A comprehensive template for getting started with Context Engineering - the discipline of engineering context for AI coding assistants so they have the information necessary to get the job done end to end.
+**For non-technical folks and vibe coders:** This intro explains *why* this workflow exists, *what* it is, and *how* to use it—in plain language.
+
+---
+
+## Why
+
+**“Vibe coding”** means asking the AI for something and hoping it works. Sometimes it does; often it doesn’t, because the AI is guessing—it doesn’t have your full picture (your project style, your rules, what “done” looks like).
+
+**Context engineering** means giving the AI that full picture *up front*: your goals, examples, rules, and how to check that things work. Then the AI can build what you actually want, fix its own mistakes, and stay consistent with your project.
+
+**In short:** Better context → fewer surprises, less rework, and code that fits your project instead of random snippets.
 
 > **Context Engineering is 10x better than prompt engineering and 100x better than vibe coding.**
 
+---
+
+## What
+
+This repo is a **workflow + a set of slash commands** that run inside your AI coding tool (VS Code with Copilot, Claude Code, or Cursor).
+
+- **Workflow:** You describe what you want → the AI turns it into a detailed plan → the AI implements the plan and checks that it works.
+- **Slash commands:** Short instructions you type in chat that tell the AI exactly what to do next. No need to write long prompts yourself.
+
+**All 7 commands** (type `/` in chat to see them), in execution order:
+
+| Order | Command | What it does | When to run |
+|-------|---------|--------------|-------------|
+| 1 | `/new-project` | Create a new project folder with this workflow preconfigured | When starting a new project |
+| 2 | `/generate-prp` | Turn your idea (e.g. from `INITIAL.md`) into a detailed implementation plan (PRP) | For each feature or when you change requirements |
+| 3 | `/generate-validate` | Have the AI create **`/validate-project`** from [.claude/commands/example-validate.md](.claude/commands/example-validate.md) | **Once, or after a significant project change** (run after planning, before building) |
+| 4 | `/build-prp` | Review/finalize the PRP (edit if needed), then optionally build and run the project | After you have a PRP; when you want to finalize the plan before implementing |
+| 5 | `/execute-prp` | Implement a feature by following the PRP and running checks | After `/build-prp` (or after `/generate-prp` if you skip review); main implementation path |
+| 6 | **`/validate-project`** | Run the project’s checks (structure, lint, tests) and report pass/fail | After building; use this (not `/validate`) to avoid injected commands |
+| 7 | `/generate-prompt` | Create a one-off, well-structured prompt for a small task | Anytime (for quick tasks, not full features) |
+
+The main idea is the **PRP** (Product Requirements Prompt): a single document that holds everything the AI needs—goal, steps, examples, and how to validate—so it can implement and self-correct instead of guessing.
+
+---
+
+## How (all 7 commands, in execution order)
+
+1. **Create or open a project**  
+   If you’re starting fresh, type **`/new-project`** and give it a path (e.g. `~/projects/my-app`). Otherwise open an existing project that already has this workflow.
+
+2. **Describe your idea**  
+   Fill in a simple template file (`INITIAL.md`) with what you want to build, any examples, and links or notes that matter.
+
+3. **Get a plan**  
+   In chat, type **`/generate-prp`** (and point it at your file). The AI researches your project and the topic, then writes a full implementation plan (the PRP) into a file in the `PRPs/` folder.
+
+4. **Set up validation (once or after a big change)**  
+   Type **`/generate-validate`**. The AI uses [.claude/commands/example-validate.md](.claude/commands/example-validate.md) to create **`/validate-project`** for your project. Run this **once**, or again after a significant project change; then use **`/validate-project`** (not `/validate`) to avoid conflicts with injected commands.
+
+5. **Finalize the plan (optional)**  
+   Type **`/build-prp`** when you want to review or edit the PRP before implementing, then optionally build and run. After that, use **`/execute-prp`** to implement the PRP and run checks.
+
+6. **Confirm it works**  
+   Type **`/validate-project`**. The AI runs the project’s checks (the ones set up by `/generate-validate`) and reports what passed or failed.
+
+7. **Quick tasks (anytime)**  
+   For a small, one-off task (not a full feature), type **`/generate-prompt`** and describe the task. The AI creates a focused prompt for it.
+
+---
+
+## Summary
+
+| Step | Command | You do this | The AI does this |
+|------|---------|-------------|------------------|
+| 1 | `/new-project` | Create project (or open existing) | Sets up folder and workflow files |
+| 2 | — | Describe the feature in `INITIAL.md` | — |
+| 3 | `/generate-prp` | Run for each feature | Researches and writes a detailed plan (PRP) |
+| 4 | `/generate-validate` | Run **once or after significant change** | Creates **`/validate-project`** from example-validate template |
+| 5 | `/build-prp` | Run when you want to finalize the plan before implementing | Finalizes PRP, then optionally builds and runs |
+| 6 | `/execute-prp` | Implement from PRP | Implements the plan and runs checks |
+| 7 | **`/validate-project`** | Run after building | Runs the generated validation (use this, not `/validate`, to avoid injected commands) |
+| 8 | `/generate-prompt` | Use anytime for small tasks | Creates a one-off prompt for the task |
+
+You stay in the driver’s seat: you describe *what* you want; the workflow and commands make sure the AI has *enough context* to build it the way you want and to verify that it works.
+
+*A one-page standalone version of this intro is in [OVERVIEW.md](OVERVIEW.md).*
+
+---
+
 ## 🚀 Quick Start
+
+> **New to Context Engineering?** See the [User Tutorial: Getting Started](tutorials/getting-started-walkthrough.md) for a hands-on walkthrough (create project → PRD → PRP → validate → execute → summarize). More tutorial material is in [tutorials/README.md](tutorials/README.md).
+
+### Unified Setup (Recommended)
+
+**macOS/Linux:**
+```bash
+# 1. Clone this template
+git clone https://github.com/coleam00/Context-Engineering-Intro.git
+cd Context-Engineering-Intro
+
+# 2. Run the interactive setup wizard
+./SETUP.sh
+
+# 3. Choose your IDE(s):
+#    1) VS Code with GitHub Copilot
+#    2) Claude Code
+#    3) Cursor
+#    4) All IDEs
+```
+
+**Windows (PowerShell):**
+```powershell
+# 1. Clone this template
+git clone https://github.com/coleam00/Context-Engineering-Intro.git
+cd Context-Engineering-Intro
+
+# 2. Run the interactive setup wizard
+.\SETUP.ps1
+
+# 3. Choose your IDE(s) from the menu
+```
+
+**Command-line flags (macOS/Linux):**
+```bash
+./SETUP.sh --vscode   # VS Code only
+./SETUP.sh --claude   # Claude Code only
+./SETUP.sh --cursor   # Cursor only
+./SETUP.sh --all      # All IDEs
+```
+
+**Command-line flags (Windows):**
+```powershell
+.\SETUP.ps1 -VSCode   # VS Code only
+.\SETUP.ps1 -Claude   # Claude Code only
+.\SETUP.ps1 -Cursor   # Cursor only
+.\SETUP.ps1 -All      # All IDEs
+```
+
+### Create a New Project
+
+Once set up, create new projects from this template:
+
+```bash
+# Create a new project with all AI configuration
+./create-project.sh ~/projects/my-new-app
+
+# Open in your IDE and start building!
+code ~/projects/my-new-app
+```
+
+### Option A: VS Code with GitHub Copilot
 
 ```bash
 # 1. Clone this template
 git clone https://github.com/coleam00/Context-Engineering-Intro.git
 cd Context-Engineering-Intro
 
-# 2. Set up your project rules (optional - template provided)
-# Edit CLAUDE.md to add your project-specific guidelines
+# 2. Run the setup script (installs extensions & configures settings)
+./SETUP-VSCODE.sh
 
-# 3. Add examples (highly recommended)
-# Place relevant code examples in the examples/ folder
+# 3. Open in VS Code
+code .
 
-# 4. Create your initial feature request
-# Edit INITIAL.md with your feature requirements
-
-# 5. Generate a comprehensive PRP (Product Requirements Prompt)
-# In Claude Code, run:
+# 4. Open Copilot Chat (Cmd+Shift+I) and use commands:
 /generate-prp INITIAL.md
-
-# 6. Execute the PRP to implement your feature
-# In Claude Code, run:
+/generate-validate          # once or after significant change
+/build-prp PRPs/your-feature-name.md   # optional: finalize then build
 /execute-prp PRPs/your-feature-name.md
+/validate
+```
+
+### Option B: Claude Code
+
+```bash
+# 1. Clone this template
+git clone https://github.com/coleam00/Context-Engineering-Intro.git
+cd Context-Engineering-Intro
+
+# 2. Run the setup script (verifies installation & configures permissions)
+./SETUP-CLAUDE.sh
+
+# 3. Open this repo in Claude Code (slash commands come from .claude/skills/ in the open project)
+claude .
+
+# 4. In chat, type / to see all 7 commands; then use:
+/generate-prp INITIAL.md
+/generate-validate          # once or after significant change
+/build-prp PRPs/your-feature-name.md   # optional: finalize then build
+/execute-prp PRPs/your-feature-name.md
+/validate
+```
+
+**Using a different project (e.g. one you created with `/new-project`)?**  
+Slash commands must be in that project. From the template repo run `./install-claude-commands.sh` and enter the project path when prompted (or pass it: `./install-claude-commands.sh /path/to/project`). Then open that project in Claude Code and restart.
+
+### Option C: Cursor
+
+```bash
+# 1. Clone this template
+git clone https://github.com/coleam00/Context-Engineering-Intro.git
+cd Context-Engineering-Intro
+
+# 2. Run the setup script (creates AI rules & settings)
+./SETUP-CURSOR.sh
+
+# 3. Open in Cursor
+cursor .
+
+# 4. Use slash commands in chat:
+/generate-prp INITIAL.md
+/generate-validate          # once or after significant change
+/build-prp PRPs/your-feature-name.md   # optional: finalize then build
+/execute-prp PRPs/your-feature-name.md
+/validate
+# For quick tasks (not full features):
+/generate-prompt Create a caching layer
 ```
 
 ## 📚 Table of Contents
 
+- [Why](#why) – Why context engineering beats vibe coding
+- [What](#what) – Workflow and slash commands
+- [How (all 7 commands)](#how-all-7-commands-in-execution-order) – Execution order with “once or after significant change” notes
+- [Summary](#summary) – You do / AI does table
+- [Overview (standalone)](OVERVIEW.md) – One-page version of the intro above
 - [What is Context Engineering?](#what-is-context-engineering)
+- [IDE Support](#ide-support)
 - [Template Structure](#template-structure)
+- [Available Commands](#available-commands)
+- [Tutorials](#tutorials)
+- [Validation & Quality](#validation--quality)
+- [Additional Resources](#additional-resources)
 - [Step-by-Step Guide](#step-by-step-guide)
 - [Writing Effective INITIAL.md Files](#writing-effective-initialmd-files)
 - [The PRP Workflow](#the-prp-workflow)
 - [Using Examples Effectively](#using-examples-effectively)
+- [Use Cases](#use-cases)
 - [Best Practices](#best-practices)
+- [Troubleshooting](#troubleshooting)
 
 ## What is Context Engineering?
 
@@ -62,27 +258,306 @@ Context Engineering represents a paradigm shift from traditional prompt engineer
 3. **Enables Complex Features**: AI can handle multi-step implementations with proper context
 4. **Self-Correcting**: Validation loops allow AI to fix its own mistakes
 
+## IDE Support
+
+This template supports **VS Code (GitHub Copilot), Claude Code, and Cursor** with equivalent functionality:
+
+| Feature | VS Code | Claude Code | Cursor |
+|---------|---------|-------------|--------|
+| Setup | `./SETUP-VSCODE.sh` | `./SETUP-CLAUDE.sh` | `./SETUP-CURSOR.sh` |
+| Instructions | `.github/copilot-instructions.md` | `CLAUDE.md` | `.cursorrules` |
+| Slash Commands | `.github/prompts/*.prompt.md` | `.claude/commands/*.md` | `.cursor/prompts/*.md` |
+| Settings | `.vscode/settings.json` | `.claude/settings.local.json` | `.cursor/settings.json` |
+
 ## Template Structure
 
 ```
 context-engineering-intro/
-├── .claude/
+├── .claude/                   # Claude Code configuration
 │   ├── commands/
+│   │   ├── new-project.md     # Creates new project from template
 │   │   ├── generate-prp.md    # Generates comprehensive PRPs
-│   │   └── execute-prp.md     # Executes PRPs to implement features
+│   │   ├── execute-prp.md     # Executes PRPs to implement features
+│   │   ├── build-prp.md       # Launch build from finalized PRP
+│   │   ├── generate-prompt.md # Generates XML-structured prompts
+│   │   ├── validate-project.md # Project validation (generated by /generate-validate)
+│   │   ├── validate.md        # Template validation (this repo only)
+│   │   └── generate-validate.md # Creates /validate-project from example-validate
+│   ├── skills/                 # Skills (invoke commands/; needed for slash-menu discovery)
+│   │   ├── new-project/SKILL.md
+│   │   ├── generate-prp/SKILL.md
+│   │   ├── execute-prp/SKILL.md
+│   │   ├── build-prp/SKILL.md
+│   │   ├── generate-prompt/SKILL.md
+│   │   ├── validate/SKILL.md
+│   │   └── generate-validate/SKILL.md
 │   └── settings.local.json    # Claude Code permissions
+├── .github/                   # VS Code Copilot configuration
+│   ├── copilot-instructions.md  # Global AI instructions
+│   └── prompts/               # Slash command definitions
+│       ├── new-project.prompt.md
+│       ├── generate-prp.prompt.md
+│       ├── execute-prp.prompt.md
+│       ├── build-prp.prompt.md
+│       ├── generate-prompt.prompt.md
+│       ├── validate-project.prompt.md  # Project validation (generated by /generate-validate)
+│       ├── validate.prompt.md          # Template validation (this repo only)
+│       └── generate-validate.prompt.md
+├── .vscode/
+│   ├── settings.json          # Workspace settings (auto-applied)
+│   └── README.md              # VS Code setup documentation
+├── .cursor/                   # Cursor IDE configuration
+│   ├── prompts/               # Slash command definitions
+│   │   ├── new-project.md
+│   │   ├── generate-prp.md
+│   │   ├── execute-prp.md
+│   │   ├── build-prp.md        # Launch build from finalized PRP
+│   │   ├── generate-prompt.md
+│   │   ├── validate-project.md # Project validation (generated by /generate-validate)
+│   │   ├── validate.md        # Template validation (this repo only; 8 phases + journal)
+│   │   └── generate-validate.md
+│   ├── settings.json          # Cursor workspace settings
+│   └── README.md              # Cursor setup documentation
+├── .cursorrules               # Cursor AI rules file
+├── tutorials/                 # Learning resources
+│   ├── getting-started-walkthrough.md  # Beginner tutorial
+│   └── daily-quote-app/       # Tutorial sample project
 ├── PRPs/
 │   ├── templates/
-│   │   └── prp_base.md       # Base template for PRPs
+│   │   └── prp_base.md        # Base template for PRPs
+│   ├── prompts/               # Generated prompts from /generate-prompt
 │   └── EXAMPLE_multi_agent_prp.md  # Example of a complete PRP
+├── use-cases/                 # Specialized templates
+│   ├── pydantic-ai/           # PydanticAI agent development
+│   ├── mcp-server/            # Cloudflare Workers MCP servers
+│   ├── agent-factory-with-subagents/  # Multi-agent orchestration
+│   ├── ai-coding-workflows-foundation/ # Planning/Implementation/Validation
+│   └── template-generator/    # Creating new templates
+├── validation/                # Validation command resources
 ├── examples/                  # Your code examples (critical!)
-├── CLAUDE.md                 # Global rules for AI assistant
-├── INITIAL.md               # Template for feature requests
-├── INITIAL_EXAMPLE.md       # Example feature request
-└── README.md                # This file
+├── journal/                   # Daily validation journal (tracking and support)
+├── CLAUDE.md                  # Global rules for AI assistant
+├── INITIAL.md                 # Template for feature requests
+├── INITIAL_EXAMPLE.md         # Example feature request
+├── create-project.sh          # Create new project from template
+├── SETUP.sh                   # Unified interactive setup
+├── SETUP-VSCODE.sh            # VS Code setup script
+├── SETUP-CLAUDE.sh            # Claude Code setup (verify in this repo)
+├── install-claude-commands.sh  # Copy .claude/commands + .claude/skills into another project (prompts for path if run with no args)
+├── SETUP-CURSOR.sh            # Cursor setup script
+└── README.md                  # This file
 ```
 
 This template doesn't focus on RAG and tools with context engineering because I have a LOT more in store for that soon. ;)
+
+## Available Commands
+
+VS Code, Claude Code, and Cursor all support these slash commands:
+
+| Order | Command | Description | When to run |
+|-------|---------|-------------|-------------|
+| 1 | `/new-project` | Create a new project from the context-engineering template | When starting a new project |
+| 2 | `/generate-prp` | Generate a comprehensive PRP from an INITIAL.md file | For each feature or when requirements change |
+| 3 | `/generate-validate` | Analyze codebase and create **`/validate-project`** from [.claude/commands/example-validate.md](.claude/commands/example-validate.md) | **Once, or after a significant project change** (run after planning, before building) |
+| 4 | `/build-prp` | **Review/finalize** the PRP (edit if needed), then optionally **build** and **run** the project | After you have a PRP; when you want to finalize the plan before implementing |
+| 5 | `/execute-prp` | Implement a feature from a PRP with validation loops | After `/build-prp` (or after `/generate-prp` if you skip review); main implementation path |
+| 6 | **`/validate-project`** | Run project-specific validation (generated by `/generate-validate`) | After building; use this (not `/validate`) to avoid injected commands |
+| 6b | `/validate` | Run template validation (8 phases + journal) in this repo only | When validating the context-engineering template itself |
+| 7 | `/generate-prompt` | Generate an XML-structured prompt with ambiguity detection | Anytime (for quick tasks, not full features) |
+
+### The Complete Workflow
+
+```
+┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
+│  /new-project   │────▶│   INITIAL.md    │────▶│  /generate-prp  │
+│  (scaffold new  │     │  (define your   │     │   (research &   │
+│   project)      │     │   requirements) │     │    planning)    │
+└─────────────────┘     └─────────────────┘     └────────┬────────┘
+                                                         │
+         ┌───────────────────────────────────────────────┘
+         ▼
+┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
+│ /generate-      │────▶│   /build-prp     │────▶│  /execute-prp    │
+│  validate       │     │  (finalize PRP,  │     │  (implement      │
+│  (once/change)  │     │   optionally     │     │   from PRP)      │
+└─────────────────┘     │   build & run)  │     └────────┬────────┘
+                        └─────────────────┘              │
+                                                         ▼
+                        ┌─────────────────┐     ┌─────────────────┐
+                        │    Complete!    │◀────│ /validate-project│
+                        │                 │     │  (verify all    │
+                        │                 │     │   passes)       │
+                        └─────────────────┘     └─────────────────┘
+```
+
+Run **`/generate-validate`** once (or after a significant project change) to create **`/validate-project`** from [.claude/commands/example-validate.md](.claude/commands/example-validate.md). Use **`/validate-project`** (not `/validate`) for project-specific validation to avoid conflicts with injected commands. Use **`/build-prp`** to (1) **finalize** the PRP (review, edit if needed), (2) optionally **build** and **run**; then use **`/execute-prp`** to implement from the PRP. PRP path is optional—the AI can list PRPs if none is given.
+
+### The /validate-project and /validate Commands
+
+**Project-specific validation (recommended):** Run **`/validate-project`** after building. This uses the validation generated by **`/generate-validate`** (from [.claude/commands/example-validate.md](.claude/commands/example-validate.md)) and avoids conflicts with team/global **`/validate`** commands.
+
+**Template validation (this repo only):** In the context-engineering template repo, **`/validate`** runs the 8-phase template check (structure, use-cases, TypeScript, Python, shell, JSON/YAML, Markdown, docs + journal).
+
+**What it validates:**
+- ✅ Project structure (core files, setup scripts, command parity)
+- ✅ Use-case structure (all 5 templates with documentation)
+- ✅ TypeScript (type checking, tests, formatting for MCP server)
+- ✅ Python (syntax, linting with ruff, type checking with mypy, tests)
+- ✅ Shell scripts (shebangs, executability, shellcheck)
+- ✅ JSON/YAML (syntax validation with JSONC support)
+- ✅ Markdown (link checking, linting)
+- ✅ Documentation (README references, PRP templates)
+
+**Quick validation tips:**
+- Run after making changes to verify everything works
+- Use `--thorough` flag for complete validation including tests
+- Install optional tools for better validation: `pip install ruff mypy pytest`
+- For MCP server: `cd use-cases/mcp-server && npm install`
+
+### The /generate-prompt Command
+
+For standalone prompts (not full PRPs), use `/generate-prompt` to create well-engineered XML-structured prompts:
+
+**Features:**
+- **Ambiguity Detection**: Automatically identifies vague or unclear requests
+- **Clarifying Questions**: Asks targeted questions before generating
+- **Adaptive Reasoning**: Selects appropriate complexity based on task analysis
+- **WHY Explanations**: Every constraint includes reasoning
+
+**Usage:**
+```
+/generate-prompt Create a caching layer for API responses
+```
+
+**Example interaction:**
+1. AI detects ambiguity: "Cache for what? TTL or event-based invalidation?"
+2. You provide details: "Redis cache, 5-minute TTL, for product catalog"
+3. AI generates structured prompt saved to `PRPs/prompts/001-caching-layer.md`
+
+**Generated prompts include:**
+- `<objective>` - Clear task statement
+- `<context>` - Background and purpose
+- `<requirements>` - Numbered, actionable items
+- `<constraints>` - Rules WITH why explanations
+- `<output>` - Expected deliverables
+- `<verification>` - Validation checklist
+- `<success_criteria>` - Measurable completion criteria
+
+## Validation & Quality
+
+### Automated Validation
+
+This template includes comprehensive validation tools to ensure quality:
+
+#### 1. `/validate-project` Command (all three IDEs)
+**`/generate-validate`** creates **`/validate-project`** in VS Code (Copilot), Claude Code, and Cursor. Run it after building:
+
+```bash
+/validate-project           # Standard validation
+/validate-project --thorough   # Includes all tests
+```
+
+Use **`/validate-project`** (not `/validate`) so project-specific validation is not overridden by team or global commands. In this template repo only, **`/validate`** runs the 8-phase template check.
+
+**What it validates (project-specific, from /generate-validate):**
+- ✅ Linting, type checking, style checking
+- ✅ Unit tests
+- ✅ Structure & documentation (and E2E when generated)
+- ✅ (Template repo: project structure, TypeScript, Python, shell, JSON/YAML, Markdown, docs, journal)
+
+#### 2. Pre-commit Hooks
+Automatically validate before each commit:
+
+```bash
+# Install pre-commit
+pip install pre-commit
+
+# Setup hooks
+pre-commit install
+pre-commit install --hook-type commit-msg
+
+# Run manually
+pre-commit run --all-files
+```
+
+**What it checks:**
+- Python: ruff (linting + formatting), file quality
+- Shell: shellcheck
+- Markdown: markdownlint
+- JSON/YAML: syntax validation
+- Custom: README completeness, executable scripts
+
+See [.pre-commit-README.md](.pre-commit-README.md) for details.
+
+#### 3. GitHub Actions CI/CD
+Automatic validation on every push and PR:
+
+- Runs all validation phases in parallel
+- Fast feedback on issues
+- Ensures consistent quality across contributions
+- See [.github/workflows/validate.yml](.github/workflows/validate.yml)
+
+### Optional Development Tools
+
+Install for enhanced validation:
+
+```bash
+# Using pip
+pip install -r requirements-dev.txt
+
+# Using uv (recommended)
+uv pip install -r requirements-dev.txt
+
+# Just the essentials
+pip install ruff mypy pytest pre-commit
+```
+
+**Included tools:**
+- `ruff`: Fast Python linter and formatter
+- `mypy`: Static type checking
+- `pytest`: Test framework with plugins
+- `pre-commit`: Git hooks framework
+- `ipython`: Enhanced Python REPL
+- `rich`: Beautiful terminal output
+
+## Tutorials
+
+Learn by doing with hands-on tutorials:
+
+| Tutorial | Description | Difficulty | Time |
+|----------|-------------|------------|------|
+| [Part 1: Daily Quote Web App](tutorials/getting-started-walkthrough.md) | Build a Flask web app for humans | Beginner | 30-45 min |
+| [Part 2: MCP Quote Server](tutorials/mcp-quote-server.md) | Build an MCP server for AI assistants | Intermediate | 45-60 min |
+
+### Two-Part Series
+
+These tutorials work together to show the same domain (quotes) served two ways:
+
+```
+        QUOTE DATA
+            │
+    ┌───────┴───────┐
+    ▼               ▼
+Part 1: Flask   Part 2: MCP
+(Python)        (TypeScript)
+    │               │
+    ▼               ▼
+👤 Humans       🤖 AI Assistants
+via browser     via natural language
+```
+
+**Part 1** teaches the PRP workflow with Python/Flask.  
+**Part 2** applies the same workflow to TypeScript/Cloudflare Workers.
+
+Complete them independently or as a series!
+
+## Additional Resources
+
+| Resource | Description |
+|----------|-------------|
+| [Claude Code Full Guide](claude-code-full-guide/README.md) | Comprehensive 500+ line guide to Claude Code with advanced techniques |
+| [Validation Resources](validation/README.md) | How to create and customize validation commands |
+| [PRP Template](PRPs/templates/prp_base.md) | Base template for creating PRPs |
 
 ## Step-by-Step Guide
 
@@ -134,7 +609,7 @@ Run in Claude Code:
 /generate-prp INITIAL.md
 ```
 
-**Note:** The slash commands are custom commands defined in `.claude/commands/`. You can view their implementation:
+**Note:** Slash commands appear in Claude Code via `.claude/skills/` (skills are discovered for the `/` menu). Each skill invokes the full instructions in `.claude/commands/`. You can view implementation in `.claude/commands/`:
 - `.claude/commands/generate-prp.md` - See how it researches and creates PRPs
 - `.claude/commands/execute-prp.md` - See how it implements features from PRPs
 
@@ -250,18 +725,53 @@ The `examples/` folder is **critical** for success. AI coding assistants perform
 
 ### Example Structure
 
+When creating your own project, organize examples like this:
+
 ```
-examples/
-├── README.md           # Explains what each example demonstrates
-├── cli.py             # CLI implementation pattern
-├── agent/             # Agent architecture patterns
-│   ├── agent.py      # Agent creation pattern
-│   ├── tools.py      # Tool implementation pattern
-│   └── providers.py  # Multi-provider pattern
-└── tests/            # Testing patterns
-    ├── test_agent.py # Unit test patterns
-    └── conftest.py   # Pytest configuration
+your-project/
+├── examples/           # Your reference examples
+├── journal/            # Daily validation journal (created by /validate-project, /execute-prp, /build-prp)
+│   ├── README.md       # Explains what each example demonstrates
+│   ├── cli.py          # CLI implementation pattern
+│   ├── agent/          # Agent architecture patterns
+│   │   ├── agent.py    # Agent creation pattern
+│   │   ├── tools.py    # Tool implementation pattern
+│   │   └── providers.py # Multi-provider pattern
+│   └── tests/          # Testing patterns
+│       ├── test_agent.py # Unit test patterns
+│       └── conftest.py   # Pytest configuration
 ```
+
+> **Note:** See `use-cases/pydantic-ai/examples/` for ready-to-use PydanticAI examples.
+
+## Use Cases
+
+This template includes specialized configurations for different AI development scenarios:
+
+### PydanticAI Agents (`use-cases/pydantic-ai/`)
+Build production-grade AI agents with tools, memory, and structured outputs.
+- Agent creation patterns with dependency injection
+- Tool integration using `@agent.tool` decorators
+- Testing with `TestModel` and `FunctionModel`
+- Multi-provider support (OpenAI, Anthropic, Gemini)
+
+### MCP Servers (`use-cases/mcp-server/`)
+Build Model Context Protocol servers on Cloudflare Workers.
+- TypeScript/Node.js with Wrangler CLI
+- GitHub OAuth authentication
+- PostgreSQL database integration
+- Tool registration patterns
+
+### Agent Factory (`use-cases/agent-factory-with-subagents/`)
+Multi-agent orchestration system with specialized subagents.
+- Phase-based workflow (0-5)
+- Subagent coordination and handoffs
+- RAG pipeline integration
+
+### Template Generator (`use-cases/template-generator/`)
+Create new use-case templates for this framework.
+
+Each use-case has its own `CLAUDE.md` with specialized rules and `README.md` with setup instructions.
 
 ## Best Practices
 
@@ -290,7 +800,109 @@ examples/
 - Include project-specific rules
 - Define coding standards
 
+## Troubleshooting
+
+### Validation Issues
+
+**"tsconfig.json invalid JSON" or ".vscode/settings.json invalid JSON"**
+- These are JSONC files (JSON with Comments) - this is expected and not an error
+- The validation command now properly handles JSONC files
+
+**"npm install" or dependencies missing**
+```bash
+# Install MCP server dependencies
+cd use-cases/mcp-server && npm install
+
+# Install Python tooling (optional but recommended)
+pip install ruff mypy pytest
+# or with uv:
+uv add ruff mypy pytest
+```
+
+**"Command not found" errors**
+- Some validation checks are optional (shellcheck, markdownlint, yamllint)
+- Install them if needed, or validation will skip gracefully:
+```bash
+# macOS
+brew install shellcheck markdownlint-cli yamllint
+
+# Linux
+sudo apt-get install shellcheck ruby-mdl yamllint
+```
+
+### Daily Quote Tutorial (Flask App)
+
+**"Address already in use" or port 5000 refused on macOS**
+- macOS Monterey and later use port 5000 for AirPlay Receiver
+- The Daily Quote app is built to use **port 5001** by default on macOS
+- Open [http://localhost:5001](http://localhost:5001) after running `python app.py`
+- On Linux/Windows, the app may use 5000—check the terminal output for the URL
+
+**Flask app not loading / "Module not found"**
+```bash
+# Use a virtual environment (recommended)
+cd your-daily-quote-project
+python -m venv venv
+source venv/bin/activate   # Windows: venv\Scripts\activate
+pip install -r requirements.txt
+python app.py
+```
+
+### Setup Script Issues
+
+**"Permission denied" when running scripts**
+```bash
+chmod +x SETUP*.sh create-project.sh install-claude-commands.sh
+```
+
+**Scripts fail with "command not found"**
+- Ensure you have the required tools: git, node, npm, python3
+- Run the appropriate setup script for your IDE first
+
+### IDE-Specific Issues
+
+**VS Code: Slash commands not working**
+- Ensure GitHub Copilot extension is installed and activated
+- Check `.github/prompts/*.prompt.md` files exist
+- Restart VS Code after installation
+
+**Claude Code: Commands not appearing in the `/` menu**
+- Slash commands come from **`.claude/skills/`** in the **project you have open**. If you're in a different project (e.g. a project you created with `/new-project` earlier), that project needs its own copy of commands and skills.
+- **To install the 7 commands into an existing project**, run from the template repo:
+  ```bash
+  cd /path/to/context-engineering
+  ./install-claude-commands.sh
+  ```
+  The script will prompt for the install path (or run `./install-claude-commands.sh /path/to/your/project` to pass the path directly).
+- Then open that project in Claude Code and **restart Claude Code** (Cmd+Q, reopen) so it rescans `.claude/skills/`.
+- Ensure scripts are executable: `chmod +x install-claude-commands.sh` if you get "permission denied".
+
+**Cursor: Prompts not available**
+- Ensure `.cursor/prompts/*.md` files exist
+- Check Cursor AI features are enabled in settings
+- Run `./SETUP-CURSOR.sh` to verify configuration
+
 ## Resources
 
 - [Claude Code Documentation](https://docs.anthropic.com/en/docs/claude-code)
-- [Context Engineering Best Practices](https://www.philschmid.de/context-engineering)
+
+## Acknowledgements
+
+This project was created by **[Cole Medin](https://github.com/coleam00)**.
+
+- 🐦 Twitter/X: [@coleam00](https://twitter.com/coleam00)
+- 📺 YouTube: [Cole Medin](https://www.youtube.com/@ColeMedin)
+- 💻 GitHub: [coleam00](https://github.com/coleam00)
+
+### Contributors
+
+- **[James Avila](https://th3rdai.com)** - Multi-IDE support (VS Code, Claude Code, Cursor), validation framework, documentation improvements
+
+If you find this template helpful, consider:
+- ⭐ Starring the repository
+- 🔀 Contributing improvements via PRs
+- 📢 Sharing with others who might benefit
+
+## License
+
+MIT License - see [LICENSE](LICENSE) for details.

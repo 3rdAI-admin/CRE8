@@ -1,0 +1,16 @@
+{
+  // VS Code Copilot Settings for Context Engineering Template
+  // These settings optimize the Copilot experience for this project
+  
+  // Enable prompt files as slash commands
+  "chat.promptFiles": true,
+  
+  // Recommended: Include workspace instructions automatically
+  "github.copilot.chat.codeGeneration.useInstructionFiles": true,
+  
+  // Recommended: Better context from open files
+  "github.copilot.chat.localeOverride": "en",
+  
+  // Recommended: Agent mode for complex tasks
+  "chat.agent.enabled": true
+}

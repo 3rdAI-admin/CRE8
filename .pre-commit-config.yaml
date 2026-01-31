@@ -1,0 +1,114 @@
+# Pre-commit hooks for Context Engineering Template
+# Install: pip install pre-commit
+# Setup: pre-commit install
+# Run manually: pre-commit run --all-files
+
+repos:
+  # General file checks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: trailing-whitespace
+        exclude: '\.md$'
+      - id: end-of-file-fixer
+      - id: check-yaml
+        args: ['--unsafe']  # Allow custom tags in YAML
+      - id: check-added-large-files
+        args: ['--maxkb=1000']
+      - id: check-json
+        exclude: '(tsconfig\.json|\.vscode/settings\.json)$'  # Skip JSONC files
+      - id: check-merge-conflict
+      - id: check-case-conflict
+      - id: mixed-line-ending
+        args: ['--fix=lf']
+      - id: check-executables-have-shebangs
+      - id: check-shebang-scripts-are-executable
+
+  # Python checks
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.3.0
+    hooks:
+      # Run ruff linter
+      - id: ruff
+        args: ['--fix']
+        files: '^use-cases/(pydantic-ai|agent-factory-with-subagents)/.*\.py$'
+      # Run ruff formatter
+      - id: ruff-format
+        files: '^use-cases/(pydantic-ai|agent-factory-with-subagents)/.*\.py$'
+
+  # Shell script checks
+  - repo: https://github.com/shellcheck-py/shellcheck-py
+    rev: v0.9.0.6
+    hooks:
+      - id: shellcheck
+        args: ['--severity=warning']
+
+  # Markdown checks
+  - repo: https://github.com/igorshubovych/markdownlint-cli
+    rev: v0.39.0
+    hooks:
+      - id: markdownlint
+        args: ['--fix', '--disable', 'MD013', 'MD033', 'MD041']  # Disable line length, HTML, first line heading
+
+  # TypeScript/JavaScript (if node_modules installed)
+  - repo: https://github.com/pre-commit/mirrors-prettier
+    rev: v3.1.0
+    hooks:
+      - id: prettier
+        types_or: [javascript, jsx, ts, tsx, json]
+        files: '^use-cases/mcp-server/.*\.(ts|tsx|js|jsx|json)$'
+        exclude: '(package-lock\.json|tsconfig\.json)$'
+
+  # Commit message checks
+  - repo: https://github.com/compilerla/conventional-pre-commit
+    rev: v3.1.0
+    hooks:
+      - id: conventional-pre-commit
+        stages: [commit-msg]
+        args: ['--force-scope']
+
+# Custom local hooks
+  - repo: local
+    hooks:
+      # Validate JSON files manually (to handle JSONC)
+      - id: validate-json
+        name: Validate JSON files
+        entry: bash -c 'for f in "$@"; do if [[ ! "$f" =~ (tsconfig\.json|settings\.json) ]]; then python3 -m json.tool "$f" > /dev/null || exit 1; fi; done' --
+        language: system
+        files: '\.json$'
+        pass_filenames: true
+
+      # Check that README mentions all commands
+      - id: readme-commands
+        name: Check README mentions all commands
+        entry: bash -c 'for cmd in generate-prp execute-prp generate-prompt validate validate-project generate-validate new-project; do grep -qi "$cmd" README.md || { echo "README missing command: $cmd"; exit 1; }; done'
+        language: system
+        files: 'README\.md$'
+        pass_filenames: false
+
+      # Ensure setup scripts are executable
+      - id: setup-scripts-executable
+        name: Setup scripts are executable
+        entry: bash -c 'for script in SETUP*.sh create-project.sh; do [ -x "$script" ] || { echo "$script not executable"; exit 1; }; done'
+        language: system
+        files: '^(SETUP.*\.sh|create-project\.sh)$'
+        pass_filenames: false
+
+# Configuration
+default_language_version:
+  python: python3
+  node: system
+
+# Skip certain files globally
+exclude: |
+  (?x)^(
+      \.git/|
+      node_modules/|
+      __pycache__/|
+      \.venv/|
+      \.pytest_cache/|
+      \.mypy_cache/|
+      \.ruff_cache/|
+      .*\.pyc$|
+      .*\.pyo$
+  )$

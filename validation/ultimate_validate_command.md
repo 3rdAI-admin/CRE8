@@ -4,7 +4,7 @@ description: Generate comprehensive validation command for this codebase
 
 # Generate Ultimate Validation Command
 
-Analyze this codebase deeply and create `.claude/commands/validate.md` that comprehensively validates everything.
+Analyze this codebase deeply and create **`/validate-project`** in all IDEs (`.claude/commands/validate-project.md`, `.cursor/prompts/validate-project.md`, `.cursor/commands/validate-project.md`, `.github/prompts/validate-project.prompt.md`) that comprehensively validates everything.
 
 ## Step 0: Discover Real User Workflows
 
@@ -48,9 +48,9 @@ Explore the codebase to understand:
 - CI/CD workflows (`.github/workflows/`, etc.)
 - Test commands in package.json or scripts
 
-## Step 2: Generate validate.md
+## Step 2: Generate validate-project (all IDEs)
 
-Create `.claude/commands/validate.md` with these phases (ONLY include phases that exist in the codebase):
+Create **`/validate-project`** with these phases in all four IDE files (ONLY include phases that exist in the codebase):
 
 ### Phase 1: Linting
 Run the actual linter commands found in the project (e.g., `npm run lint`, `ruff check`, etc.)
@@ -107,10 +107,15 @@ Test COMPLETE user workflows from documentation, not just internal APIs.
 - Database integrity should be confirmed
 - The validation should be so thorough that manual testing is completely unnecessary
 
-If /validate passes, the user should have 100% confidence their application works correctly in production. Don't settle for partial coverage - make it comprehensive, creative, and complete.
+If **`/validate-project`** passes, the user should have 100% confidence their application works correctly in production. Don't settle for partial coverage - make it comprehensive, creative, and complete.
 
 ## Output
 
-Write the generated validation command to `.claude/commands/validate.md`
+Write the generated **`/validate-project`** command to all four IDE locations so it works in VS Code, Claude Code, and Cursor:
+
+1. `.claude/commands/validate-project.md`
+2. `.cursor/prompts/validate-project.md`
+3. `.cursor/commands/validate-project.md`
+4. `.github/prompts/validate-project.prompt.md` (add YAML frontmatter with `description:` and `mode:` as needed)
 
 The command should be executable, practical, and give complete confidence in the codebase.

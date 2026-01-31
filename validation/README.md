@@ -2,21 +2,35 @@
 
 **One command to analyze your codebase and generate a comprehensive validation workflow.**
 
+The template's **generate-validate** commands use **[.claude/commands/example-validate.md](../.claude/commands/example-validate.md)** as the template and create a **`/validate-project`** command (not `/validate`) so project-specific validation is not overridden by team or global commands. They also use **ultimate_validate_command.md** for philosophy. Users run **`/validate-project`** to run the generated validation.
+
 ## Quick Start
 
 ### 1. Generate Your Validation Command
 ```bash
-/ultimate_validate_command
+/generate-validate
 ```
 
-This analyzes your codebase and creates `.claude/commands/validate.md` tailored to your project.
+This analyzes your codebase and, using [.claude/commands/example-validate.md](../.claude/commands/example-validate.md) as the template, creates **`/validate-project`** in all IDEs (`.claude/commands/validate-project.md`, `.cursor/prompts/validate-project.md`, `.cursor/commands/validate-project.md`, `.github/prompts/validate-project.prompt.md`).
 
 ### 2. Run Complete Validation
 ```bash
-/validate
+/validate-project
 ```
 
-This runs all validation: linting, type checking, style checking, unit tests, and comprehensive end-to-end testing.
+This runs the generated validation (linting, type checking, style checking, unit tests, E2E). Use **`/validate-project`** (not `/validate`) to avoid conflicts with injected commands.
+
+### 3. Full thorough run (this template repo)
+For **`/validate-project --thorough`** to run all phases (ruff, mypy, pytest, pydantic-ai use-cases), install Python dev tooling from the repo root:
+
+```bash
+./install-dev-tools.sh        # creates .venv if missing, installs ruff, mypy, pytest, pydantic-ai, etc.
+source .venv/bin/activate    # then run /validate-project --thorough
+```
+
+Or with **uv**: `uv venv && uv sync --extra dev` (or `uv pip install -r requirements-dev.txt`), then `source .venv/bin/activate` and run **`/validate-project`** or **`/validate-project --thorough`**. If Phase 2 (mypy) or Phase 4 (pytest) are skipped, ensure mypy and pytest are in the active environment.
+
+**Troubleshooting:** If **`/validate-project`** skips Phase 2 or 4, run `./install-dev-tools.sh` or `uv sync --extra dev` (may take 1–2 min on slow volumes). If pytest fails with `ModuleNotFoundError: pygments.formatters`, run `uv pip install pygments --python .venv/bin/python` (or `pip install pygments` in the activated venv).
 
 ## What It Does
 
@@ -26,8 +40,8 @@ This runs all validation: linting, type checking, style checking, unit tests, an
 - Understands your application architecture (routes, endpoints, database schema)
 - Examines existing test patterns and CI/CD configs
 
-### Generates validate.md
-Creates a validation command with phases:
+### Generates /validate-project (all three IDEs)
+**`/generate-validate`** creates **`/validate-project`** in VS Code (`.github/prompts/validate-project.prompt.md`), Claude Code (`.claude/commands/validate-project.md`), and Cursor (`.cursor/prompts/validate-project.md`). The generated command has phases:
 
 1. **Linting** - Using your configured linter
 2. **Type Checking** - Using your configured type checker
@@ -62,7 +76,7 @@ Uses Docker and custom scripts to:
 
 ## Key Philosophy
 
-**If `/validate` passes, your app works.**
+**If `/validate-project` passes, your app works.**
 
 The E2E testing is creative and thorough enough that manual testing becomes unnecessary. It tests the application exactly how a real user would interact with it.
 
@@ -97,6 +111,6 @@ This approach:
 
 ## Get Started
 
-Run `/ultimate_validate_command` to generate your validation workflow, then use `/validate` whenever you need complete confidence in your code.
+Run **`/generate-validate`** to generate your **`/validate-project`** workflow, then use **`/validate-project`** whenever you need complete confidence in your code (use this, not `/validate`, to avoid injected commands).
 
 The generated command adapts to YOUR codebase and tests it thoroughly.
