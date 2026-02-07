@@ -27,13 +27,13 @@ export class MyMCP extends McpAgent<Env, Record<string, never>, Props> {
   /**
    * Durable Objects alarm handler - used for cleanup
    */
-  async alarm(): Promise<void> {
+  alarm = async (): Promise<void> => {
     await this.cleanup();
-  }
+  };
 
   async init() {
     // Register all tools based on user permissions
-    registerAllTools(this.server, this.env, this.props);
+    registerAllTools(this.server, this.env, this.props!);
   }
 }
 

@@ -15,15 +15,19 @@
   },
   "dependencies": {
     "@cloudflare/workers-oauth-provider": "^0.0.5",
-    "@modelcontextprotocol/sdk": "1.13.1",
+    "@modelcontextprotocol/sdk": "^1.26.0",
     "@sentry/cloudflare": "^9.16.0",
-    "agents": "^0.0.100",
+    "agents": "^0.3.7",
     "hono": "^4.8.3",
     "just-pick": "^4.2.0",
     "octokit": "^5.0.3",
     "postgres": "^3.4.5",
     "workers-mcp": "^0.0.13",
     "zod": "^3.25.67"
+  },
+  "overrides": {
+    "@modelcontextprotocol/sdk": "^1.26.0",
+    "wrangler": "^4.59.1"
   },
   "devDependencies": {
     "@cloudflare/vitest-pool-workers": "^0.8.53",
@@ -32,6 +36,6 @@
     "typescript": "^5.8.3",
     "vi-fetch": "^0.8.0",
     "vitest": "^3.2.4",
-    "wrangler": "^4.23.0"
+    "wrangler": "^4.59.1"
   }
 }

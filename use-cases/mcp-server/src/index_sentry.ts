@@ -39,9 +39,9 @@ export class MyMCP extends McpAgent<Env, Record<string, never>, Props> {
   /**
    * Durable Objects alarm handler - used for cleanup
    */
-  async alarm(): Promise<void> {
+  alarm = async (): Promise<void> => {
     await this.cleanup();
-  }
+  };
 
   async init() {
     // Initialize Sentry
