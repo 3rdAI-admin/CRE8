@@ -78,7 +78,8 @@ determine_target_and_create() {
     echo -e "${YELLOW}Where would you like to set up the environment?${NC}"
     echo "1) Configure current directory ($SCRIPT_DIR)"
     echo "2) Create and configure a new project"
-    read -p "Select option (1/2): " setup_choice
+    echo "3) Install into an existing project or codebase"
+    read -p "Select option (1/2/3): " setup_choice
 
     if [[ "$setup_choice" == "2" ]]; then
         read -p "Enter path for new project (e.g. ~/projects/my-app): " entered_path
@@ -107,10 +108,210 @@ determine_target_and_create() {
         
         TARGET_PATH="$target_path"
         return 0
+    elif [[ "$setup_choice" == "3" ]]; then
+        install_to_existing "$ide_flags"
+        return $?
     else
         TARGET_PATH="$SCRIPT_DIR"
         return 0
     fi
+}
+
+# =============================================================================
+# Install into Existing Project
+# =============================================================================
+
+install_to_existing() {
+    local ide_flags="$1"
+    
+    echo ""
+    echo -e "${CYAN}${BOLD}Install into an existing project or codebase${NC}"
+    echo ""
+    read -p "Enter path to existing project (e.g. ~/projects/my-app): " entered_path
+    
+    # Expand tilde manually
+    local target_path="${entered_path/#\~/$HOME}"
+    
+    if [ -z "$target_path" ]; then
+        print_error "Path is required."
+        return 1
+    fi
+    
+    if [ ! -d "$target_path" ]; then
+        print_error "Directory does not exist: $target_path"
+        return 1
+    fi
+    
+    # Resolve to absolute path
+    target_path="$(cd "$target_path" && pwd)"
+    
+    if [ "$target_path" = "$SCRIPT_DIR" ]; then
+        print_warning "That's the template repo itself. Use option 1 instead."
+        return 1
+    fi
+    
+    echo ""
+    echo -e "${BLUE}Installing context engineering workflow into:${NC}"
+    echo -e "  ${BOLD}$target_path${NC}"
+    echo ""
+    
+    # Determine which IDEs to install
+    local include_vscode=false
+    local include_claude=false
+    local include_cursor=false
+    
+    case "$ide_flags" in
+        *--vscode*) include_vscode=true ;;
+        *--claude*) include_claude=true ;;
+        *--cursor*) include_cursor=true ;;
+        *--all*)    include_vscode=true; include_claude=true; include_cursor=true ;;
+    esac
+    
+    # --- Copy IDE-specific configuration ---
+    
+    if [ "$include_vscode" = true ]; then
+        print_info "Installing VS Code / GitHub Copilot configuration..."
+        mkdir -p "$target_path/.github/prompts"
+        if [ -d "$SCRIPT_DIR/.github/prompts" ]; then
+            cp -r "$SCRIPT_DIR/.github/prompts/"*.prompt.md "$target_path/.github/prompts/" 2>/dev/null || true
+            print_success ".github/prompts/ (slash commands)"
+        fi
+        if [ -d "$SCRIPT_DIR/.vscode" ] && [ ! -d "$target_path/.vscode" ]; then
+            cp -r "$SCRIPT_DIR/.vscode" "$target_path/"
+            print_success ".vscode/ (settings)"
+        fi
+    fi
+    
+    if [ "$include_claude" = true ]; then
+        print_info "Installing Claude Code configuration..."
+        mkdir -p "$target_path/.claude/commands"
+        mkdir -p "$target_path/.claude/skills"
+        if [ -d "$SCRIPT_DIR/.claude/commands" ]; then
+            cp -r "$SCRIPT_DIR/.claude/commands/"*.md "$target_path/.claude/commands/" 2>/dev/null || true
+            print_success ".claude/commands/ (slash commands)"
+        fi
+        if [ -d "$SCRIPT_DIR/.claude/skills" ]; then
+            cp -r "$SCRIPT_DIR/.claude/skills/"* "$target_path/.claude/skills/" 2>/dev/null || true
+            print_success ".claude/skills/ (skill discovery)"
+        fi
+        if [ ! -f "$target_path/.claude/settings.local.json" ] && [ -f "$SCRIPT_DIR/.claude/settings.local.json" ]; then
+            cp "$SCRIPT_DIR/.claude/settings.local.json" "$target_path/.claude/"
+            print_success ".claude/settings.local.json"
+        fi
+    fi
+    
+    if [ "$include_cursor" = true ]; then
+        print_info "Installing Cursor configuration..."
+        mkdir -p "$target_path/.cursor/prompts"
+        if [ -d "$SCRIPT_DIR/.cursor/prompts" ]; then
+            cp -r "$SCRIPT_DIR/.cursor/prompts/"*.md "$target_path/.cursor/prompts/" 2>/dev/null || true
+            print_success ".cursor/prompts/ (slash commands)"
+        fi
+        if [ -d "$SCRIPT_DIR/.cursor/rules" ] && [ ! -d "$target_path/.cursor/rules" ]; then
+            cp -r "$SCRIPT_DIR/.cursor/rules" "$target_path/.cursor/"
+            print_success ".cursor/rules/"
+        fi
+        if [ ! -f "$target_path/.cursorrules" ]; then
+            cp "$SCRIPT_DIR/.cursorrules" "$target_path/" 2>/dev/null || true
+            print_success ".cursorrules"
+        else
+            print_warning ".cursorrules already exists (skipped — merge manually if needed)"
+        fi
+    fi
+    
+    # --- Copy shared template files ---
+    
+    echo ""
+    print_info "Installing shared workflow files..."
+    
+    # CLAUDE.md (AI coding rules)
+    if [ ! -f "$target_path/CLAUDE.md" ]; then
+        cp "$SCRIPT_DIR/CLAUDE.md" "$target_path/"
+        print_success "CLAUDE.md (AI coding rules)"
+    else
+        print_warning "CLAUDE.md already exists (skipped)"
+    fi
+    
+    # Canonical commands source
+    if [ -d "$SCRIPT_DIR/.commands" ]; then
+        if [ ! -d "$target_path/.commands" ]; then
+            cp -r "$SCRIPT_DIR/.commands" "$target_path/"
+            print_success ".commands/ (canonical command source)"
+        else
+            print_warning ".commands/ already exists (skipped)"
+        fi
+    fi
+    
+    # sync-commands.sh (so they can re-sync later)
+    if [ ! -f "$target_path/sync-commands.sh" ]; then
+        cp "$SCRIPT_DIR/bin/sync-commands.sh" "$target_path/sync-commands.sh" 2>/dev/null || true
+        chmod +x "$target_path/sync-commands.sh" 2>/dev/null || true
+        print_success "sync-commands.sh (re-sync commands across IDEs)"
+    fi
+    
+    # PRP templates
+    mkdir -p "$target_path/PRPs/templates"
+    mkdir -p "$target_path/PRPs/prompts"
+    if [ -d "$SCRIPT_DIR/PRPs/templates" ]; then
+        cp -r "$SCRIPT_DIR/PRPs/templates/"* "$target_path/PRPs/templates/" 2>/dev/null || true
+        print_success "PRPs/templates/ (PRP & PRD templates)"
+    fi
+    
+    # PRDs directory
+    mkdir -p "$target_path/PRDs"
+    
+    # Journal directory
+    if [ ! -d "$target_path/journal" ]; then
+        mkdir -p "$target_path/journal"
+        echo "# Validation journal index" > "$target_path/journal/README.md"
+        print_success "journal/ (validation tracking)"
+    fi
+    
+    # INITIAL.md (starter template)
+    if [ ! -f "$target_path/INITIAL.md" ]; then
+        cat > "$target_path/INITIAL.md" << 'INITEOF'
+## FEATURE:
+[Describe what you want to build - be specific about functionality and requirements]
+
+## EXAMPLES:
+[List any example files in the examples/ folder and explain how they should be used]
+
+## DOCUMENTATION:
+[Include links to relevant documentation, APIs, or resources]
+
+## OTHER CONSIDERATIONS:
+[Mention any gotchas, specific requirements, or things AI assistants commonly miss]
+INITEOF
+        print_success "INITIAL.md (feature request template)"
+    else
+        print_warning "INITIAL.md already exists (skipped)"
+    fi
+    
+    # --- Summary ---
+    
+    echo ""
+    print_separator
+    echo ""
+    echo -e "${GREEN}${BOLD}Installation complete!${NC}"
+    echo ""
+    echo -e "  ${BOLD}Project:${NC} $target_path"
+    echo ""
+    echo -e "  ${BOLD}What was installed:${NC}"
+    echo "    - Slash commands for your selected IDE(s)"
+    echo "    - PRP & PRD templates for planning"
+    echo "    - INITIAL.md for describing features"
+    echo "    - Journal directory for validation tracking"
+    echo ""
+    echo -e "  ${BOLD}Next steps:${NC}"
+    echo "    1. Open the project in your IDE"
+    echo "    2. Edit INITIAL.md with your feature idea"
+    echo "    3. Type /generate-prd to create a requirements doc"
+    echo "    4. Type /generate-prp to create an execution plan"
+    echo "    5. Type /execute-prp to implement it"
+    echo ""
+    
+    TARGET_PATH="$target_path"
+    return 0
 }
 
 # =============================================================================
@@ -302,9 +503,14 @@ show_help() {
     echo ""
     echo "Without options, an interactive menu will be displayed."
     echo ""
-    echo "When creating a new project, only the selected IDE(s) configuration"
-    echo "files will be copied (.github/.vscode for VS Code, .claude for Claude,"
-    echo ".cursor/.cursorrules for Cursor). This keeps projects clean and focused."
+    echo "The setup wizard offers three modes:"
+    echo "  1) Configure the template repo itself"
+    echo "  2) Create a brand new project from the template"
+    echo "  3) Install into an existing project or codebase"
+    echo ""
+    echo "Option 3 is non-destructive: it copies slash commands, templates,"
+    echo "and workflow files into your existing project without overwriting"
+    echo "files that already exist (CLAUDE.md, .cursorrules, etc.)."
     echo ""
 }
 
