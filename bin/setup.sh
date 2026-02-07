@@ -23,7 +23,7 @@ BOLD='\033[1m'
 NC='\033[0m' # No Color
 
 # Get script directory (project root)
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 # =============================================================================
 # Helper Functions
@@ -72,19 +72,66 @@ print_info() {
     echo -e "${CYAN}ℹ️  $1${NC}"
 }
 
+determine_target_and_create() {
+    local ide_flags="$1" # e.g. "--vscode" or "--all"
+    
+    echo -e "${YELLOW}Where would you like to set up the environment?${NC}"
+    echo "1) Configure current directory ($SCRIPT_DIR)"
+    echo "2) Create and configure a new project"
+    read -p "Select option (1/2): " setup_choice
+
+    if [[ "$setup_choice" == "2" ]]; then
+        read -p "Enter path for new project (e.g. ~/projects/my-app): " entered_path
+        
+        # Expand tilde manually
+        local target_path="${entered_path/#\~/$HOME}"
+        
+        if [ -z "$target_path" ]; then
+            print_error "Path is required."
+            return 1
+        fi
+        
+        # Check if create-project.sh exists
+        if [ ! -f "${SCRIPT_DIR}/bin/create-project.sh" ]; then
+             print_error "create-project.sh not found!"
+             return 1
+        fi
+
+        # Run create-project.sh with flags
+        print_info "Creating project with flags: $ide_flags"
+        bash "${SCRIPT_DIR}/bin/create-project.sh" "$target_path" $ide_flags
+        
+        if [ $? -ne 0 ]; then
+            return 1
+        fi
+        
+        TARGET_PATH="$target_path"
+        return 0
+    else
+        TARGET_PATH="$SCRIPT_DIR"
+        return 0
+    fi
+}
+
 # =============================================================================
 # Setup Functions
 # =============================================================================
 
 setup_vscode() {
+    local target_dir="${1:-}"
+
     echo ""
     echo -e "${MAGENTA}${BOLD}══════════════════════════════════════════════════════════════${NC}"
     echo -e "${MAGENTA}${BOLD}  Setting up VS Code with GitHub Copilot${NC}"
     echo -e "${MAGENTA}${BOLD}══════════════════════════════════════════════════════════════${NC}"
     echo ""
     
-    if [ -f "${SCRIPT_DIR}/setup-vscode.sh" ]; then
-        bash "${SCRIPT_DIR}/setup-vscode.sh"
+    if [ -f "${SCRIPT_DIR}/bin/setup-vscode.sh" ]; then
+        if [ -n "$target_dir" ]; then
+            bash "${SCRIPT_DIR}/bin/setup-vscode.sh" "$target_dir"
+        else
+            bash "${SCRIPT_DIR}/bin/setup-vscode.sh"
+        fi
         return $?
     else
         print_error "setup-vscode.sh not found!"
@@ -93,14 +140,20 @@ setup_vscode() {
 }
 
 setup_claude() {
+    local target_dir="${1:-}"
+
     echo ""
     echo -e "${MAGENTA}${BOLD}══════════════════════════════════════════════════════════════${NC}"
     echo -e "${MAGENTA}${BOLD}  Setting up Claude Code${NC}"
     echo -e "${MAGENTA}${BOLD}══════════════════════════════════════════════════════════════${NC}"
     echo ""
     
-    if [ -f "${SCRIPT_DIR}/setup-claude.sh" ]; then
-        bash "${SCRIPT_DIR}/setup-claude.sh"
+    if [ -f "${SCRIPT_DIR}/bin/setup-claude.sh" ]; then
+        if [ -n "$target_dir" ]; then
+            bash "${SCRIPT_DIR}/bin/setup-claude.sh" "$target_dir"
+        else
+            bash "${SCRIPT_DIR}/bin/setup-claude.sh"
+        fi
         return $?
     else
         print_error "setup-claude.sh not found!"
@@ -109,14 +162,20 @@ setup_claude() {
 }
 
 setup_cursor() {
+    local target_dir="${1:-}"
+
     echo ""
     echo -e "${MAGENTA}${BOLD}══════════════════════════════════════════════════════════════${NC}"
     echo -e "${MAGENTA}${BOLD}  Setting up Cursor${NC}"
     echo -e "${MAGENTA}${BOLD}══════════════════════════════════════════════════════════════${NC}"
     echo ""
     
-    if [ -f "${SCRIPT_DIR}/setup-cursor.sh" ]; then
-        bash "${SCRIPT_DIR}/setup-cursor.sh"
+    if [ -f "${SCRIPT_DIR}/bin/setup-cursor.sh" ]; then
+        if [ -n "$target_dir" ]; then
+            bash "${SCRIPT_DIR}/bin/setup-cursor.sh" "$target_dir"
+        else
+            bash "${SCRIPT_DIR}/bin/setup-cursor.sh"
+        fi
         return $?
     else
         print_error "setup-cursor.sh not found!"
@@ -125,6 +184,7 @@ setup_cursor() {
 }
 
 setup_all() {
+    local target_dir="${1:-}"
     local vscode_status=0
     local claude_status=0
     local cursor_status=0
@@ -136,9 +196,9 @@ setup_all() {
     echo ""
 
     # Sync commands from canonical source
-    if [ -f "${SCRIPT_DIR}/sync-commands.sh" ]; then
+    if [ -f "${SCRIPT_DIR}/bin/sync-commands.sh" ]; then
         print_info "Syncing commands to all IDE directories..."
-        bash "${SCRIPT_DIR}/sync-commands.sh" || print_warning "Command sync had issues"
+        bash "${SCRIPT_DIR}/bin/sync-commands.sh" || print_warning "Command sync had issues"
         echo ""
         print_separator
         echo ""
@@ -147,7 +207,7 @@ setup_all() {
     # VS Code
     print_info "Starting VS Code setup..."
     echo ""
-    if setup_vscode; then
+    if setup_vscode "$target_dir"; then
         vscode_status=0
     else
         vscode_status=1
@@ -159,7 +219,7 @@ setup_all() {
     # Claude Code
     print_info "Starting Claude Code setup..."
     echo ""
-    if setup_claude; then
+    if setup_claude "$target_dir"; then
         claude_status=0
     else
         claude_status=1
@@ -171,7 +231,7 @@ setup_all() {
     # Cursor
     print_info "Starting Cursor setup..."
     echo ""
-    if setup_cursor; then
+    if setup_cursor "$target_dir"; then
         cursor_status=0
     else
         cursor_status=1
@@ -231,7 +291,7 @@ echo ""
 # =============================================================================
 
 show_help() {
-    echo "Usage: ./SETUP.sh [option]"
+    echo "Usage: ./setup.sh [option]"
     echo ""
     echo "Options:"
     echo "  --vscode, -v     Setup VS Code with GitHub Copilot only"
@@ -241,6 +301,10 @@ show_help() {
     echo "  --help, -h       Show this help message"
     echo ""
     echo "Without options, an interactive menu will be displayed."
+    echo ""
+    echo "When creating a new project, only the selected IDE(s) configuration"
+    echo "files will be copied (.github/.vscode for VS Code, .claude for Claude,"
+    echo ".cursor/.cursorrules for Cursor). This keeps projects clean and focused."
     echo ""
 }
 
@@ -295,29 +359,41 @@ main() {
         
         case $choice in
             1)
-                setup_vscode
-                print_quick_start
+                determine_target_and_create "--vscode"
+                if [ $? -eq 0 ]; then
+                    setup_vscode "$TARGET_PATH"
+                    print_quick_start
+                fi
                 echo ""
                 echo -n "Press Enter to continue..."
                 read -r
                 ;;
             2)
-                setup_claude
-                print_quick_start
+                determine_target_and_create "--claude"
+                if [ $? -eq 0 ]; then
+                    setup_claude "$TARGET_PATH"
+                    print_quick_start
+                fi
                 echo ""
                 echo -n "Press Enter to continue..."
                 read -r
                 ;;
             3)
-                setup_cursor
-                print_quick_start
+                determine_target_and_create "--cursor"
+                if [ $? -eq 0 ]; then
+                    setup_cursor "$TARGET_PATH"
+                    print_quick_start
+                fi
                 echo ""
                 echo -n "Press Enter to continue..."
                 read -r
                 ;;
             4)
-                setup_all
-                print_quick_start
+                determine_target_and_create "--all"
+                if [ $? -eq 0 ]; then
+                    setup_all "$TARGET_PATH"
+                    print_quick_start
+                fi
                 echo ""
                 echo -n "Press Enter to continue..."
                 read -r

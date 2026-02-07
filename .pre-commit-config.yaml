@@ -67,7 +67,7 @@ repos:
         stages: [commit-msg]
         args: ['--force-scope']
 
-# Custom local hooks
+  # Custom local hooks
   - repo: local
     hooks:
       # Validate JSON files manually (to handle JSONC)
@@ -81,7 +81,7 @@ repos:
       # Check that README mentions all commands
       - id: readme-commands
         name: Check README mentions all commands
-        entry: bash -c 'for cmd in generate-prp execute-prp generate-prompt validate validate-project generate-validate new-project; do grep -qi "$cmd" README.md || { echo "README missing command: $cmd"; exit 1; }; done'
+        entry: "bash -c 'for cmd in generate-prd generate-prp execute-prp generate-prompt validate validate-project generate-validate new-project build-prp summarize; do grep -qi \"$cmd\" README.md || { echo \"README missing command $cmd\"; exit 1; }; done'"
         language: system
         files: 'README\.md$'
         pass_filenames: false
@@ -89,7 +89,7 @@ repos:
       # Ensure setup scripts are executable
       - id: setup-scripts-executable
         name: Setup scripts are executable
-        entry: bash -c 'for script in SETUP*.sh create-project.sh; do [ -x "$script" ] || { echo "$script not executable"; exit 1; }; done'
+        entry: "bash -c 'for script in SETUP*.sh create-project.sh; do [ -x \"$script\" ] || { echo \"$script not executable\"; exit 1; }; done'"
         language: system
         files: '^(SETUP.*\.sh|create-project\.sh)$'
         pass_filenames: false

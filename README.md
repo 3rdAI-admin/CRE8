@@ -23,18 +23,20 @@ This repo is a **workflow + a set of slash commands** that run inside your AI co
 - **Workflow:** You describe what you want → the AI turns it into a detailed plan → the AI implements the plan and checks that it works.
 - **Slash commands:** Short instructions you type in chat that tell the AI exactly what to do next. No need to write long prompts yourself.
 
-**All 7 commands** (type `/` in chat to see them), in execution order:
+**All 9 commands** (type `/` in chat to see them), in execution order:
 
 | Order | Command | What it does | When to run |
 |-------|---------|--------------|-------------|
-| 1 | `/new-project` | Create a new project folder with this workflow preconfigured; **copies all slash commands** (`.cursor/`, `.claude/`, `.github/`, `.vscode/`) into the new project so you can open it and continue with `/generate-prp`, `/execute-prp`, etc. | When starting a new project |
-| 2 | `/generate-prp` | Turn your idea (e.g. from `INITIAL.md`) into a detailed implementation plan (PRP) | For each feature or when you change requirements |
-| 3 | `/generate-validate` | Have the AI create **`/validate-project`** from [.claude/commands/example-validate.md](.claude/commands/example-validate.md) | **Once, or after a significant project change** (run after planning, before building) |
-| 4 | `/build-prp` | Review/finalize the PRP (edit if needed), then optionally build and run the project | After you have a PRP; when you want to finalize the plan before implementing |
-| 5 | `/execute-prp` | Implement a feature by following the PRP and running checks | After `/build-prp` (or after `/generate-prp` if you skip review); main implementation path |
+| 1 | `/new-project` | Create a new project folder with this workflow preconfigured; copies slash commands for **selected IDE(s)** (`.github/`+`.vscode/` for VS Code, `.claude/` for Claude, `.cursor/`+`.cursorrules` for Cursor) so you can open it and continue with `/generate-prp`, `/execute-prp`, etc. | When starting a new project |
+| 2 | **`/generate-prd`** | Turn your idea (e.g. from `INITIAL.md`) into a **professional Product Requirements Document (PRD)** | For each product/feature; output in `PRDs/` for review and planning |
+| 3 | `/generate-prp` | Turn the PRD (or `INITIAL.md`) into a detailed **execution plan with multi-agent task breakdown** (PRP) | After PRD; for each feature or when you change requirements |
+| 4 | `/generate-validate` | Have the AI create **`/validate-project`** from [.claude/commands/example-validate.md](.claude/commands/example-validate.md) | **Once, or after a significant project change** (run after planning, before building) |
+| 5 | `/build-prp` | Review/finalize the PRP (edit if needed), then optionally build and run the project | After you have a PRP; when you want to finalize the plan before implementing |
+| 6 | `/execute-prp` | Implement a feature by following the PRP and running checks | After `/build-prp` (or after `/generate-prp` if you skip review); main implementation path |
 | 6 | **`/validate-project`** | Run the project’s checks (structure, lint, tests) and report pass/fail | After building; use this (not `/validate`) to avoid injected commands |
-| 7 | `/generate-prompt` | Create a one-off, well-structured prompt for a small task | Anytime (for quick tasks, not full features) |
-
+| 8 | **`/summarize`** | Summarize **completed steps and next actions** for user response | After validate (or execute); gives what's done and what to do next |
+| 9 | `/generate-prompt` | Create a one-off, well-structured prompt for a small task | Anytime (for quick tasks, not full features) |
+> **💡 Selective Installation:** The setup wizard (`./bin/setup.sh`) and `/new-project` command support selective IDE installation. When you select a specific IDE (e.g., VS Code), only that IDE's configuration files are copied to new projects. This keeps projects clean and focused on your chosen tool. Use `--all` to copy all IDE configurations.
 The main idea is the **PRP** (Product Requirements Prompt): a single document that holds everything the AI needs—goal, steps, examples, and how to validate—so it can implement and self-correct instead of guessing.
 
 ---
@@ -68,14 +70,16 @@ The main idea is the **PRP** (Product Requirements Prompt): a single document th
 
 | Step | Command | You do this | The AI does this |
 |------|---------|-------------|------------------|
-| 1 | `/new-project` | Create project (or open existing) | Sets up folder, workflow files, and **all slash commands**—new project is ready to use |
+| 1 | `/new-project` | Create project (or open existing) | Sets up folder, workflow files, and slash commands for selected IDE(s)—new project is ready to use |
 | 2 | — | Describe the feature in `INITIAL.md` | — |
-| 3 | `/generate-prp` | Run for each feature | Researches and writes a detailed plan (PRP) |
-| 4 | `/generate-validate` | Run **once or after significant change** | Creates **`/validate-project`** from example-validate template |
-| 5 | `/build-prp` | Run when you want to finalize the plan before implementing | Finalizes PRP, then optionally builds and runs |
-| 6 | `/execute-prp` | Implement from PRP | Implements the plan and runs checks |
-| 7 | **`/validate-project`** | Run after building | Runs the generated validation (use this, not `/validate`, to avoid injected commands) |
-| 8 | `/generate-prompt` | Use anytime for small tasks | Creates a one-off prompt for the task |
+| 3 | `/generate-prd` | Run for each product/feature | Creates a **professional PRD** in `PRDs/` (goals, scope, success criteria) |
+| 4 | `/generate-prp` | Run after PRD (or from INITIAL.md) | Creates **execution plan** with multi-agent task breakdown |
+| 5 | `/generate-validate` | Run **once or after significant change** | Creates **`/validate-project`** from example-validate template |
+| 6 | `/build-prp` | Run when you want to finalize the plan before implementing | Finalizes PRP, then optionally builds and runs |
+| 7 | `/execute-prp` | Implement from PRP | Implements the plan and runs checks |
+| 8 | **`/validate-project`** | Run after building | Runs the generated validation (use this, not `/validate`, to avoid injected commands) |
+| 9 | **`/summarize`** | Run after validate or execute | Summarizes completed steps and next actions |
+| 10 | `/generate-prompt` | Use anytime for small tasks | Creates a one-off prompt for the task |
 
 You stay in the driver’s seat: you describe *what* you want; the workflow and commands make sure the AI has *enough context* to build it the way you want and to verify that it works.
 
@@ -96,18 +100,18 @@ git clone https://github.com/coleam00/Context-Engineering-Intro.git
 cd Context-Engineering-Intro
 
 # 2. Run the interactive setup wizard
-./bin/setup.sh
-
-# 3. Choose your IDE(s):
-#    1) VS Code with GitHub Copilot
-#    2) Claude Code
-#    3) Cursor
-#    4) All IDEs
+./setup.sh
 ```
 
 **Windows (PowerShell):**
 ```powershell
 # 1. Clone this template
+git clone https://github.com/coleam00/Context-Engineering-Intro.git
+cd Context-Engineering-Intro
+
+# 2. Run the interactive setup wizard
+.\setup.ps1
+```
 git clone https://github.com/coleam00/Context-Engineering-Intro.git
 cd Context-Engineering-Intro
 
@@ -127,10 +131,10 @@ cd Context-Engineering-Intro
 
 **Command-line flags (Windows):**
 ```powershell
-.\SETUP.ps1 -VSCode   # VS Code only
-.\SETUP.ps1 -Claude   # Claude Code only
-.\SETUP.ps1 -Cursor   # Cursor only
-.\SETUP.ps1 -All      # All IDEs
+.\setup.ps1 -VSCode   # VS Code only
+.\setup.ps1 -Claude   # Claude Code only
+.\setup.ps1 -Cursor   # Cursor only
+.\setup.ps1 -All      # All IDEs
 ```
 
 ### Create a New Project
@@ -141,11 +145,17 @@ Once set up, create new projects from this template:
 # Create a new project with all AI configuration
 ./create-project.sh ~/projects/my-new-app
 
+# Or create with only specific IDE(s)
+./create-project.sh ~/projects/my-new-app --vscode  # VS Code only
+./create-project.sh ~/projects/my-new-app --claude  # Claude Code only
+./create-project.sh ~/projects/my-new-app --cursor  # Cursor only
+./create-project.sh ~/projects/my-new-app --all     # All IDEs (default)
+
 # Open in your IDE and start building!
 code ~/projects/my-new-app   # or: cursor .  or  claude .
 ```
 
-**Note:** `/new-project` (or `create-project.sh`) copies **all slash-command config** (`.cursor/`, `.claude/`, `.github/`, `.vscode/`) into the new project. The new project is **ready to use**—open it in your IDE and run `/generate-prp`, `/execute-prp`, `/validate-project`, etc. No extra install step is needed.
+**Note:** Without flags, `create-project.sh` copies **all slash-command config** (`.cursor/`, `.claude/`, `.github/`, `.vscode/`) into the new project. With IDE-specific flags (e.g., `--vscode`), only the selected IDE's configuration is copied. The setup wizard (`./setup.sh`) automatically uses these flags based on your IDE selection.
 
 The new project also includes a **`journal/`** folder (with a starter index). When you run `/validate-project`, `/execute-prp`, or `/build-prp`, the AI appends progress to `journal/YYYY-MM-DD.md` and updates `journal/README.md`. Use the journal to see where you left off and resume after a computer restart or unexpected IDE shutdown.
 
@@ -356,13 +366,15 @@ VS Code, Claude Code, and Cursor all support these slash commands:
 | Order | Command | Description | When to run |
 |-------|---------|-------------|-------------|
 | 1 | `/new-project` | Create a new project from the template; **copies all slash commands** into the new project so you can open it and finish the workflow | When starting a new project |
-| 2 | `/generate-prp` | Generate a comprehensive PRP from an INITIAL.md file | For each feature or when requirements change |
-| 3 | `/generate-validate` | Analyze codebase and create **`/validate-project`** from [.claude/commands/example-validate.md](.claude/commands/example-validate.md) | **Once, or after a significant project change** (run after planning, before building) |
-| 4 | `/build-prp` | **Review/finalize** the PRP (edit if needed), then optionally **build** and **run** the project | After you have a PRP; when you want to finalize the plan before implementing |
-| 5 | `/execute-prp` | Implement a feature from a PRP with validation loops | After `/build-prp` (or after `/generate-prp` if you skip review); main implementation path |
-| 6 | **`/validate-project`** | Run project-specific validation (generated by `/generate-validate`) | After building; use this (not `/validate`) to avoid injected commands |
-| 6b | `/validate` | Run template validation (8 phases + journal) in this repo only | When validating the context-engineering template itself |
-| 7 | `/generate-prompt` | Generate an XML-structured prompt with ambiguity detection | Anytime (for quick tasks, not full features) |
+| 2 | **`/generate-prd`** | Create **professional Product Requirements Document (PRD)** from INITIAL.md or input | For each product/feature; output in `PRDs/` for review and planning |
+| 3 | `/generate-prp` | Generate a comprehensive PRP from PRD or INITIAL.md file | After PRD; for each feature or when requirements change |
+| 4 | `/generate-validate` | Analyze codebase and create **`/validate-project`** from [.claude/commands/example-validate.md](.claude/commands/example-validate.md) | **Once, or after a significant project change** (run after planning, before building) |
+| 5 | `/build-prp` | **Review/finalize** the PRP (edit if needed), then optionally **build** and **run** the project | After you have a PRP; when you want to finalize the plan before implementing |
+| 6 | `/execute-prp` | Implement a feature from a PRP with validation loops | After `/build-prp` (or after `/generate-prp` if you skip review); main implementation path |
+| 7 | **`/validate-project`** | Run project-specific validation (generated by `/generate-validate`) | After building; use this (not `/validate`) to avoid injected commands |
+| 7b | `/validate` | Run template validation (8 phases + journal) in this repo only | When validating the context-engineering template itself |
+| 8 | **`/summarize`** | Summarize **completed steps and next actions** for user response | After validate (or execute); gives what's done and what to do next |
+| 9 | `/generate-prompt` | Generate an XML-structured prompt with ambiguity detection | Anytime (for quick tasks, not full features) |
 
 ### The Complete Workflow
 

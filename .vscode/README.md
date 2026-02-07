@@ -9,7 +9,7 @@ This project includes VS Code-specific configuration for GitHub Copilot integrat
 Run the setup script from the project root:
 
 ```bash
-./SETUP-VSCODE.sh
+./setup.sh --vscode
 ```
 
 This script will:

@@ -29,7 +29,8 @@ Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
 
 # Get script directory (project root)
-$ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
+$BinDir = Split-Path -Parent $MyInvocation.MyCommand.Path
+$ScriptDir = Split-Path -Parent $BinDir
 
 # =============================================================================
 # Helper Functions

@@ -23,7 +23,7 @@ Then form the full path as `[location]/[name]` (e.g. `~/projects/daily-quote-app
 
 1. **Creates project folder** at the specified path
 2. **Copies AI configuration** (`.claude/`, `.github/`, `.vscode/`, `.cursor/`, `CLAUDE.md`, `.cursorrules`)
-3. **Sets up folder structure** (`PRPs/`, `PRPs/prompts/`, `PRPs/templates/`, `examples/`, `journal/`) and a starter **journal** index for progress tracking (so you can resume after a restart or unexpected IDE shutdown)
+3. **Sets up folder structure** (`PRPs/`, `PRPs/prompts/`, `PRPs/templates/`, `examples/`, `journal/`) and a starter **journal** index for progress tracking (resume after restart or unexpected IDE shutdown)
 4. **Copies PRP templates** for use in the new project
 5. **Creates blank INITIAL.md** ready to fill in
 6. **Creates .gitignore** with common patterns

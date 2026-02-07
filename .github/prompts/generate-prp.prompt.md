@@ -49,7 +49,7 @@ Using PRPs/templates/prp_base.md as template:
 ### Multi-agent task breakdown (required)
 - Break work into **small, assignable tasks** (1–2 hours each, single-responsibility, testable).
 - For each task: scope (what it owns), assignable unit (agent/pass), and acceptance (how to verify).
-- Use the "Multi-agent task breakdown" section in [PRPs/templates/prp_base.md](PRPs/templates/prp_base.md).
+- Use the "Multi-agent task breakdown" section in [PRPs/templates/prp_base.md](../../PRPs/templates/prp_base.md).
 - List tasks in dependency order so execution (e.g. `/execute-prp`) can run them accurately.
 
 ### List of tasks

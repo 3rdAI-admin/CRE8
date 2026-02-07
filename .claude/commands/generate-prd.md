@@ -22,7 +22,7 @@ Turn a vibe coder's idea or INITIAL.md into a **professional PRD**: clear goals,
    - External: comparable products, APIs, best practices (include URLs).
 
 3. **Draft the PRD**
-   - Use [PRPs/templates/prd_base.md](PRPs/templates/prd_base.md) as the structure.
+   - Use [PRPs/templates/prd_base.md](../../PRPs/templates/prd_base.md) as the structure.
    - Fill every section: Overview, Background & Problem, Requirements (functional + non-functional), Success Criteria, Scope & Constraints, References.
    - Write in clear, stakeholder-friendly language (semi-technical is fine; avoid jargon without explanation).
    - Add concrete success criteria (testable / measurable where possible).

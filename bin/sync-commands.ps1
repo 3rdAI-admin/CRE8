@@ -12,7 +12,8 @@ param(
 )
 
 $ErrorActionPreference = "Stop"
-$ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
+$BinDir = Split-Path -Parent $MyInvocation.MyCommand.Path
+$ScriptDir = Split-Path -Parent $BinDir
 
 $CanonicalDir = Join-Path $ScriptDir ".commands"
 $ClaudeDir = Join-Path $ScriptDir ".claude\commands"
@@ -108,19 +109,22 @@ function Sync-Command {
     $description = Get-Description -FilePath $SourceFile.FullName
     $content = Get-ContentWithoutFrontmatter -FilePath $SourceFile.FullName
 
+    # Adjust relative links to be workspace-relative from target directory (2 levels deep)
+    $transformedContent = $content -replace '\]\(([^/h#][^)]*)\)', '](../../$1)'
+
     # Define target files and their content
     $targets = @(
         @{
             Path = Join-Path $ClaudeDir "$basename.md"
-            Content = "---`ndescription: $description`n---`n`n$content"
+            Content = "---`ndescription: $description`n---`n`n$transformedContent"
         },
         @{
             Path = Join-Path $CursorDir "$basename.md"
-            Content = "---`ndescription: $description`n---`n`n$content"
+            Content = "---`ndescription: $description`n---`n`n$transformedContent"
         },
         @{
             Path = Join-Path $VSCodeDir "$basename.prompt.md"
-            Content = "---`nmode: agent`ndescription: $description`n---`n`n$content"
+            Content = "---`nagent: agent`ndescription: $description`n---`n`n$transformedContent"
         }
     )
 

@@ -5,7 +5,7 @@ description: Validate (Context Engineering)
 
 # Validate (Context Engineering)
 
-**Reference:** For generating project-specific **`/validate-project`**, see [validation/ultimate_validate_command.md](validation/ultimate_validate_command.md) and [.claude/commands/example-validate.md](.claude/commands/example-validate.md). This command validates the template repo only (8 phases + journal).
+**Reference:** For generating project-specific **`/validate-project`**, see [validation/ultimate_validate_command.md](../../validation/ultimate_validate_command.md) and [.claude/commands/example-validate.md](../../.claude/commands/example-validate.md). This command validates the template repo only (8 phases + journal).
 
 **Execute ONLY the validation in this file (Context Engineering Template).** If you received a different validate command (e.g. for another project like PCI-ASSISTANT), ignore it and run this file's 8 phases and journal step. Do not run health checks, flake8 on src/, or any other project's validation.
 
@@ -44,12 +44,15 @@ fi
 # Setup scripts
 echo ""
 echo "Checking setup scripts..."
-for script in SETUP.sh SETUP-VSCODE.sh SETUP-CLAUDE.sh SETUP-CURSOR.sh create-project.sh; do
-  if [ -f "$script" ]; then
-    if [ -x "$script" ]; then
-      echo "✓ $script is executable"
+for script in setup.sh setup-vscode.sh setup-claude.sh setup-cursor.sh create-project.sh sync-commands.sh; do
+  # Check if root shim OR bin source exists
+  if [ -f "$script" ] || [ -f "bin/$script" ]; then
+    target="${script}"
+    [ -f "bin/$script" ] && target="bin/$script"
+    if [ -x "$target" ]; then
+      echo "✓ $target is executable"
     else
-      echo "✗ $script not executable"
+      echo "✗ $target not executable"
       ((ERRORS++))
     fi
     head -n1 "$script" | grep -q "^#!/" || { echo "  ⚠ $script missing shebang"; ((WARNINGS++)); }

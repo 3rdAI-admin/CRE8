@@ -4,14 +4,6 @@
 # ============================================================================
 # This script verifies and configures Claude Code for the Context Engineering
 # workflow with slash commands (/generate-prp, /execute-prp)
-#
-# Original Creator: Cole Medin (https://github.com/coleam00)
-# Repository: https://github.com/coleam00/Context-Engineering-Intro
-# License: MIT
-#
-# Contributor: James Avila (https://th3rdai.com)
-#
-# Usage: ./SETUP-CLAUDE.sh
 # ============================================================================
 
 set -e
@@ -23,13 +15,24 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
-# Get the project root (parent of bin/)
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+# Get the directory of this script
+BIN_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# Default to parent of bin/ if no argument provided
+DEFAULT_DIR="$(dirname "$BIN_DIR")"
+
+# Target Directory from argument or default
+TARGET_DIR="${1:-$DEFAULT_DIR}"
 
 echo -e "${BLUE}============================================${NC}"
 echo -e "${BLUE}  Context Engineering - Claude Code Setup${NC}"
 echo -e "${BLUE}============================================${NC}"
+echo -e "${BLUE}  Target: $TARGET_DIR${NC}"
 echo ""
+
+if [ ! -d "$TARGET_DIR" ]; then
+    echo -e "${RED}Error: Target directory '$TARGET_DIR' does not exist.${NC}"
+    exit 1
+fi
 
 # ----------------------------------------------------------------------------
 # Step 1: Check if Claude Code CLI is available
@@ -57,7 +60,7 @@ fi
 # Step 2: Verify project structure
 # ----------------------------------------------------------------------------
 echo ""
-echo -e "${YELLOW}Step 2: Verifying project structure...${NC}"
+echo -e "${YELLOW}Step 2: Verifying project structure in $TARGET_DIR...${NC}"
 
 # Check required directories exist
 REQUIRED_DIRS=(
@@ -67,11 +70,11 @@ REQUIRED_DIRS=(
 )
 
 for dir in "${REQUIRED_DIRS[@]}"; do
-    if [ -d "$SCRIPT_DIR/$dir" ]; then
+    if [ -d "$TARGET_DIR/$dir" ]; then
         echo -e "  ${GREEN}✓${NC} $dir exists"
     else
         echo -e "  ${YELLOW}!${NC} Creating $dir..."
-        mkdir -p "$SCRIPT_DIR/$dir"
+        mkdir -p "$TARGET_DIR/$dir"
     fi
 done
 
@@ -90,7 +93,7 @@ REQUIRED_FILES=(
     ".claude/commands/validate-project.md"
     ".claude/commands/validate.md"
     ".claude/commands/generate-validate.md"
-    ".claude/settings.local.json"
+    # ".claude/settings.local.json" # Checked separately next
     "CLAUDE.md"
     "INITIAL.md"
     "PRPs/templates/prp_base.md"
@@ -98,9 +101,11 @@ REQUIRED_FILES=(
 
 ALL_FILES_EXIST=true
 for file in "${REQUIRED_FILES[@]}"; do
-    if [ -f "$SCRIPT_DIR/$file" ]; then
+    if [ -f "$TARGET_DIR/$file" ]; then
         echo -e "  ${GREEN}✓${NC} $file"
     else
+        # Only warn if files are missing, as they might not be part of new project template yet
+        # But if we just created a project, they should be there.
         echo -e "  ${RED}✗${NC} $file (missing!)"
         ALL_FILES_EXIST=false
     fi
@@ -116,7 +121,7 @@ fi
 echo ""
 echo -e "${YELLOW}Step 4: Checking Claude Code settings...${NC}"
 
-SETTINGS_FILE="$SCRIPT_DIR/.claude/settings.local.json"
+SETTINGS_FILE="$TARGET_DIR/.claude/settings.local.json"
 
 if [ -f "$SETTINGS_FILE" ]; then
     # Check for key permissions
@@ -146,8 +151,9 @@ if [ -f "$SETTINGS_FILE" ]; then
 else
     echo -e "  ${RED}✗${NC} settings.local.json not found"
     echo "  Creating default settings..."
-    mkdir -p "$SCRIPT_DIR/.claude"
-    cat > "$SETTINGS_FILE" << 'EOF'
+    mkdir -p "$TARGET_DIR/.claude"
+    # We write to the TARGET_DIR
+    cat > "$SETTINGS_FILE" << 'JSONEOF'
 {
   "permissions": {
     "allow": [
@@ -172,7 +178,7 @@ else
     "deny": []
   }
 }
-EOF
+JSONEOF
     echo -e "  ${GREEN}✓${NC} Created default settings.local.json"
 fi
 
@@ -182,10 +188,10 @@ fi
 echo ""
 echo -e "${YELLOW}Step 5: Checking CLAUDE.md...${NC}"
 
-if [ -f "$SCRIPT_DIR/CLAUDE.md" ]; then
+if [ -f "$TARGET_DIR/CLAUDE.md" ]; then
     echo -e "  ${GREEN}✓${NC} CLAUDE.md found"
     # Show first line as preview
-    FIRST_LINE=$(head -1 "$SCRIPT_DIR/CLAUDE.md" | tr -d '#' | xargs)
+    FIRST_LINE=$(head -1 "$TARGET_DIR/CLAUDE.md" | tr -d '#' | xargs)
     echo -e "  ${BLUE}→${NC} $FIRST_LINE"
 else
     echo -e "  ${RED}✗${NC} CLAUDE.md not found"
@@ -200,58 +206,14 @@ echo -e "${BLUE}============================================${NC}"
 echo -e "${GREEN}  Setup Complete!${NC}"
 echo -e "${BLUE}============================================${NC}"
 echo ""
-echo -e "${YELLOW}Available Slash Commands:${NC}"
+echo -e "${YELLOW}Usage:${NC}"
 echo ""
-echo "  /new-project       - Create new project from template"
-echo "  /generate-prp      - Create comprehensive PRP from INITIAL.md"
-echo "  /execute-prp       - Implement feature from PRP with validation"
-echo "  /build-prp         - Finalize PRP, then optionally build and run"
-echo "  /generate-prompt   - Create XML-structured prompt (standalone)"
-echo "  /validate-project  - Run project validation (from /generate-validate)"
-echo "  /validate          - Run template validation (this repo only)"
-echo "  /generate-validate - Create /validate-project for your project (all 3 IDEs)"
+echo "  1. Open this project in your terminal"
+echo "  2. Run Claude Code:"
+echo "     ${BLUE}claude${NC}"
 echo ""
-echo -e "${YELLOW}Quick Start:${NC}"
-echo ""
-echo "  1. Open this project in Claude Code:"
-echo "     ${BLUE}cd $SCRIPT_DIR && claude${NC}"
-echo ""
-echo "  2. Create your feature request:"
-echo "     Edit ${BLUE}INITIAL.md${NC} with your requirements"
-echo ""
-echo "  3. Generate a PRP:"
+echo "  3. Use slash commands:"
 echo "     ${BLUE}/generate-prp INITIAL.md${NC}"
-echo ""
-echo "  4. Execute the PRP:"
-echo "     ${BLUE}/execute-prp PRPs/your-feature-name.md${NC}"
-echo ""
-echo -e "${YELLOW}Workflow:${NC}"
-echo ""
-echo "  ┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐"
-echo "  │   INITIAL.md    │────▶│  /generate-prp  │────▶│  PRPs/feature.md│"
-echo "  │  (requirements) │     │   (research &   │     │  (comprehensive │"
-echo "  │                 │     │    planning)    │     │   impl guide)   │"
-echo "  └─────────────────┘     └─────────────────┘     └────────┬────────┘"
-echo "                                                           │"
-echo "                                                           ▼"
-echo "  ┌─────────────────┐                             ┌─────────────────┐"
-echo "  │    Complete!    │◀────────────────────────────│   /execute-prp  │"
-echo "  │                 │                             │  (implement &   │"
-echo "  │                 │                             │ validate-project)│"
-echo "  └─────────────────┘                             └─────────────────┘"
-echo ""
-echo -e "${YELLOW}Use Cases:${NC}"
-echo ""
-echo "  This template includes specialized configurations for:"
-echo "  • ${BLUE}use-cases/pydantic-ai/${NC}     - PydanticAI agent development"
-echo "  • ${BLUE}use-cases/mcp-server/${NC}      - Cloudflare Workers MCP servers"
-echo "  • ${BLUE}use-cases/agent-factory/${NC}   - Multi-agent orchestration"
-echo "  • ${BLUE}use-cases/template-generator/${NC} - Create new templates"
-echo ""
-echo -e "${YELLOW}Documentation:${NC}"
-echo ""
-echo "  - CLAUDE.md - Global AI coding rules"
-echo "  - PRPs/EXAMPLE_multi_agent_prp.md - Example PRP"
-echo "  - README.md - Full documentation"
+echo "     ${BLUE}/execute-prp PRPs/feature.md${NC}"
 echo ""
 echo -e "${GREEN}Happy coding with Context Engineering! 🚀${NC}"

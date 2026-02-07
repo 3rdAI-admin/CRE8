@@ -40,7 +40,9 @@ def _search_query_for_category(category: str) -> str:
 
 def fetch_unsplash_image(category: str) -> str:
     """Fetch a random Unsplash photo relevant to the quote category. Use category-specific default if no API key."""
-    fallback = DEFAULT_IMAGES.get(category, DEFAULT_IMAGE) if category else DEFAULT_IMAGE
+    fallback = (
+        DEFAULT_IMAGES.get(category, DEFAULT_IMAGE) if category else DEFAULT_IMAGE
+    )
     if not UNSPLASH_ACCESS_KEY:
         return fallback
     try:
@@ -75,12 +77,14 @@ def api_quote():
         return jsonify({"error": "No quote found"}), 404
     category = quote.get("category") or "life"
     image_url = fetch_unsplash_image(category) or DEFAULT_IMAGE
-    return jsonify({
-        "quote": quote["text"],
-        "author": quote["author"],
-        "category": quote.get("category", ""),
-        "image_url": image_url,
-    })
+    return jsonify(
+        {
+            "quote": quote["text"],
+            "author": quote["author"],
+            "category": quote.get("category", ""),
+            "image_url": image_url,
+        }
+    )
 
 
 if __name__ == "__main__":

@@ -11,7 +11,7 @@
 #
 # Contributor: James Avila (https://th3rdai.com)
 #
-# Usage: ./SETUP-VSCODE.sh
+# Usage: ./bin/setup-vscode.sh [target-directory]
 # ============================================================================
 
 set -e
@@ -30,6 +30,43 @@ echo -e "${BLUE}============================================${NC}"
 echo -e "${BLUE}  Context Engineering - VS Code Setup${NC}"
 echo -e "${BLUE}============================================${NC}"
 echo ""
+
+# ----------------------------------------------------------------------------
+# Step 0: Determine Target Directory
+# ----------------------------------------------------------------------------
+if [ -n "$1" ]; then
+    TARGET_DIR="$1"
+    echo -e "${YELLOW}Target directory provided: $TARGET_DIR${NC}"
+else
+    echo -e "${YELLOW}Where would you like to set up the environment?${NC}"
+    echo "1) Configure current directory ($SCRIPT_DIR)"
+    echo "2) Create and configure a new project"
+    read -p "Select option (1/2): " setup_choice
+
+    if [[ "$setup_choice" == "2" ]]; then
+        read -p "Enter path for new project (e.g. ~/projects/my-app): " entered_path
+        
+        # Expand tilde manually
+        TARGET_DIR="${entered_path/#\~/$HOME}"
+        
+        if [ -z "$TARGET_DIR" ]; then
+            echo -e "${RED}Error: path is required.${NC}"
+            exit 1
+        fi
+
+        # Run create-project.sh
+        echo -e "${YELLOW}Running project creation script...${NC}"
+        if [ -f "$SCRIPT_DIR/bin/create-project.sh" ]; then
+            # Pass --vscode flag explicitly
+            "$SCRIPT_DIR/bin/create-project.sh" "$TARGET_DIR" --vscode
+        else
+            echo -e "${RED}Error: create-project.sh not found at $SCRIPT_DIR/bin/create-project.sh${NC}"
+            exit 1
+        fi
+    else
+        TARGET_DIR="$SCRIPT_DIR"
+    fi
+fi
 
 # ----------------------------------------------------------------------------
 # Step 1: Check if VS Code CLI is available
@@ -72,10 +109,10 @@ for ext in "${EXTENSIONS[@]}"; do
 done
 
 # ----------------------------------------------------------------------------
-# Step 3: Verify project structure
+# Step 3: Verify project structure in Target Directory
 # ----------------------------------------------------------------------------
 echo ""
-echo -e "${YELLOW}Step 3: Verifying project structure...${NC}"
+echo -e "${YELLOW}Step 3: Verifying project structure in $TARGET_DIR...${NC}"
 
 # Check required directories exist
 REQUIRED_DIRS=(
@@ -84,11 +121,11 @@ REQUIRED_DIRS=(
 )
 
 for dir in "${REQUIRED_DIRS[@]}"; do
-    if [ -d "$SCRIPT_DIR/$dir" ]; then
+    if [ -d "$TARGET_DIR/$dir" ]; then
         echo -e "  ${GREEN}✓${NC} $dir exists"
     else
         echo -e "  ${YELLOW}!${NC} Creating $dir..."
-        mkdir -p "$SCRIPT_DIR/$dir"
+        mkdir -p "$TARGET_DIR/$dir"
     fi
 done
 
@@ -110,7 +147,7 @@ echo ""
 echo -e "${YELLOW}Step 4: Verifying prompt files...${NC}"
 
 for file in "${REQUIRED_FILES[@]}"; do
-    if [ -f "$SCRIPT_DIR/$file" ]; then
+    if [ -f "$TARGET_DIR/$file" ]; then
         echo -e "  ${GREEN}✓${NC} $file"
     else
         echo -e "  ${RED}✗${NC} $file (missing!)"
@@ -123,7 +160,7 @@ done
 echo ""
 echo -e "${YELLOW}Step 5: Checking VS Code settings...${NC}"
 
-SETTINGS_FILE="$SCRIPT_DIR/.vscode/settings.json"
+SETTINGS_FILE="$TARGET_DIR/.vscode/settings.json"
 
 if [ -f "$SETTINGS_FILE" ]; then
     # Check for key settings
@@ -165,53 +202,8 @@ else
   "chat.agent.enabled": true
 }
 EOF
-    echo -e "  ${GREEN}✓${NC} Created default settings.json"
 fi
 
-# ----------------------------------------------------------------------------
-# Step 6: Display available commands
-# ----------------------------------------------------------------------------
 echo ""
-echo -e "${BLUE}============================================${NC}"
-echo -e "${GREEN}  Setup Complete!${NC}"
-echo -e "${BLUE}============================================${NC}"
-echo ""
-echo -e "${YELLOW}Available Slash Commands:${NC}"
-echo ""
-echo "  /new-project       - Create new project from template"
-echo "  /generate-prp      - Create comprehensive PRP from INITIAL.md"
-echo "  /execute-prp       - Implement feature from PRP with validation"
-echo "  /build-prp         - Finalize PRP, then optionally build and run"
-echo "  /generate-prompt   - Create XML-structured prompt (standalone)"
-echo "  /validate-project  - Run project validation (from /generate-validate)"
-echo "  /validate          - Run template validation (this repo only)"
-echo "  /generate-validate - Create /validate-project for your project (all 3 IDEs)"
-echo ""
-echo -e "${YELLOW}Quick Start:${NC}"
-echo ""
-echo "  1. Open this project in VS Code:"
-echo "     ${BLUE}code $SCRIPT_DIR${NC}"
-echo ""
-echo "  2. Open Copilot Chat:"
-echo "     ${BLUE}Cmd+Shift+I${NC} (macOS) or ${BLUE}Ctrl+Shift+I${NC} (Windows/Linux)"
-echo ""
-echo "  3. Type ${BLUE}/${NC} to see available commands"
-echo ""
-echo "  4. Try a command:"
-echo "     ${BLUE}/generate-prp INITIAL.md${NC}"
-echo ""
-echo -e "${YELLOW}Workflow:${NC}"
-echo ""
-echo "  1. Define requirements in INITIAL.md"
-echo "  2. Run: /generate-prp INITIAL.md"
-echo "  3. Review generated PRP in PRPs/ folder"
-echo "  4. Run: /execute-prp PRPs/feature-name.md"
-echo "  5. Run: /validate-project to verify implementation"
-echo ""
-echo -e "${YELLOW}Documentation:${NC}"
-echo ""
-echo "  - .vscode/README.md - Detailed VS Code setup guide"
-echo "  - .github/prompts/README.md - Command documentation"
-echo "  - .github/copilot-instructions.md - AI coding rules"
-echo ""
-echo -e "${GREEN}Happy coding with Context Engineering! 🚀${NC}"
+echo -e "${GREEN}VS Code setup complete!${NC}"
+echo "Open VS Code and try using slash commands in GitHub Copilot Chat."

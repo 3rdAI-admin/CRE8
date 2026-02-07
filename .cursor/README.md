@@ -11,7 +11,7 @@ This project includes Cursor-specific configuration for AI-assisted development.
 Run the setup script from the project root:
 
 ```bash
-./SETUP-CURSOR.sh
+./setup.sh --cursor
 ```
 
 This script will:

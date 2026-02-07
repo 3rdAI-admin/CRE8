@@ -1,6 +1,6 @@
 # Generate Validate-Project Command
 
-**Use [.claude/commands/example-validate.md](.claude/commands/example-validate.md) as the template.** That file shows the structure (phases, backtick-fenced runnable commands, summary). Also use [validation/ultimate_validate_command.md](validation/ultimate_validate_command.md) for philosophy (user workflows, E2E levels).
+**Use [.claude/commands/example-validate.md](.claude/commands/example-validate.md) as the template.** That file shows the structure (phases, backtick-fenced runnable commands, summary). Also use [docs/validation/ultimate_validate_command.md](docs/validation/ultimate_validate_command.md) for philosophy (user workflows, E2E levels).
 
 **Why /validate-project (not /validate):** We generate a **/validate-project** command so project-specific validation is not overridden by team or global /validate commands. Users run **/validate-project** to run this project's validation.
 

@@ -10,8 +10,9 @@ param(
 
 $ErrorActionPreference = "Stop"
 
-# Get script directory (template location)
-$ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
+# Get bin directory and root directory
+$BinDir = Split-Path -Parent $MyInvocation.MyCommand.Path
+$ScriptDir = Split-Path -Parent $BinDir
 
 # Expand path if relative
 if (-not [System.IO.Path]::IsPathRooted($ProjectPath)) {

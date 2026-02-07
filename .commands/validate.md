@@ -39,12 +39,15 @@ fi
 # Setup scripts
 echo ""
 echo "Checking setup scripts..."
-for script in SETUP.sh SETUP-VSCODE.sh SETUP-CLAUDE.sh SETUP-CURSOR.sh create-project.sh; do
-  if [ -f "$script" ]; then
-    if [ -x "$script" ]; then
-      echo "✓ $script is executable"
+for script in setup.sh setup-vscode.sh setup-claude.sh setup-cursor.sh create-project.sh sync-commands.sh; do
+  # Check if root shim OR bin source exists
+  if [ -f "$script" ] || [ -f "bin/$script" ]; then
+    target="${script}"
+    [ -f "bin/$script" ] && target="bin/$script"
+    if [ -x "$target" ]; then
+      echo "✓ $target is executable"
     else
-      echo "✗ $script not executable"
+      echo "✗ $target not executable"
       ((ERRORS++))
     fi
     head -n1 "$script" | grep -q "^#!/" || { echo "  ⚠ $script missing shebang"; ((WARNINGS++)); }

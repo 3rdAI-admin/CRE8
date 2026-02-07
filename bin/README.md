@@ -15,13 +15,14 @@ Canonical location for all project scripts.
 
 | Script | Description |
 |--------|-------------|
-| `create-project.sh` | Create new project from template (bash) |
+| `create-project.sh` | Create new project from template (bash) - supports `--vscode`, `--claude`, `--cursor`, `--all` flags |
 | `create-project.ps1` | Create new project from template (PowerShell) |
 
 ## Utilities
 
 | Script | Description |
 |--------|-------------|
+| `sync-commands.sh` | Sync commands across IDEs (Bash) |
 | `sync-commands.ps1` | Sync commands across IDEs (PowerShell) |
 | `install-claude-commands.sh` | Install Claude Code commands globally |
 | `install-dev-tools.sh` | Install development dependencies |
@@ -31,30 +32,40 @@ Canonical location for all project scripts.
 ### From Repository Root
 
 ```bash
-# Use the main entry point
-./SETUP.sh
+# Use the main entry point (interactive menu)
+./setup.sh
 
-# Or run bin scripts directly
+# Or with command-line flags
+./setup.sh --vscode   # VS Code only
+./setup.sh --claude   # Claude Code only
+./setup.sh --cursor   # Cursor only
+./setup.sh --all      # All IDEs
+
+# Run bin scripts directly (can also use shims in root)
 ./bin/setup-claude.sh
-./bin/create-project.sh ~/projects/my-app
+
+# Create project with selective IDE installation
+./create-project.sh ~/projects/my-app --vscode  # VS Code only
+./create-project.sh ~/projects/my-app --all     # All IDEs (default)
 ```
 
-### From bin/ Directory
+### From bin/ Directory (Source of Truth)
 
 ```bash
 cd bin
-./setup.sh
-./create-project.sh ~/projects/my-app
+./setup.sh --vscode              # VS Code only
+./setup.sh --all                 # All IDEs
+./create-project.sh ~/projects/my-app --vscode  # VS Code project only
 ```
 
 ## Windows Users
 
-PowerShell versions are provided for Windows compatibility:
+PowerShell versions are provided for Windows compatibility (use root shims or bin directly):
 
 ```powershell
-.\bin\setup.ps1
-.\bin\create-project.ps1 C:\Projects\my-app
-.\bin\sync-commands.ps1
+.\setup.ps1
+.\create-project.ps1 C:\Projects\my-app
+.\sync-commands.ps1
 ```
 
 ## Script Conventions
