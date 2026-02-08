@@ -53,7 +53,7 @@ fi
 # Check if directory already exists
 if [ -d "$PROJECT_PATH" ]; then
     echo "⚠️  Directory $PROJECT_PATH already exists."
-    read -p "Do you want to continue and potentially overwrite existing files? (y/N) " confirm
+    read -rp "Do you want to continue and potentially overwrite existing files? (y/N) " confirm
     if [[ "$confirm" != "y" && "$confirm" != "Y" ]]; then
         echo "❌ Aborting."
         exit 1

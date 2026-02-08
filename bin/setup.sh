@@ -79,10 +79,10 @@ determine_target_and_create() {
     echo "1) Configure current directory ($SCRIPT_DIR)"
     echo "2) Create and configure a new project"
     echo "3) Install into an existing project or codebase"
-    read -p "Select option (1/2/3): " setup_choice
+    read -rp "Select option (1/2/3): " setup_choice
 
     if [[ "$setup_choice" == "2" ]]; then
-        read -p "Enter path for new project (e.g. ~/projects/my-app): " entered_path
+        read -rp "Enter path for new project (e.g. ~/projects/my-app): " entered_path
         
         # Expand tilde manually
         local target_path="${entered_path/#\~/$HOME}"
@@ -100,9 +100,7 @@ determine_target_and_create() {
 
         # Run create-project.sh with flags
         print_info "Creating project with flags: $ide_flags"
-        bash "${SCRIPT_DIR}/bin/create-project.sh" "$target_path" $ide_flags
-        
-        if [ $? -ne 0 ]; then
+        if ! bash "${SCRIPT_DIR}/bin/create-project.sh" "$target_path" "$ide_flags"; then
             return 1
         fi
         
@@ -133,7 +131,7 @@ install_to_existing() {
     if [ -n "$provided_path" ]; then
         entered_path="$provided_path"
     else
-        read -p "Enter path to existing project (e.g. ~/projects/my-app): " entered_path
+        read -rp "Enter path to existing project (e.g. ~/projects/my-app): " entered_path
     fi
     
     # Expand tilde manually
@@ -590,8 +588,7 @@ main() {
         
         case $choice in
             1)
-                determine_target_and_create "--vscode"
-                if [ $? -eq 0 ]; then
+                if determine_target_and_create "--vscode"; then
                     setup_vscode "$TARGET_PATH"
                     print_quick_start
                 fi
@@ -600,8 +597,7 @@ main() {
                 read -r
                 ;;
             2)
-                determine_target_and_create "--claude"
-                if [ $? -eq 0 ]; then
+                if determine_target_and_create "--claude"; then
                     setup_claude "$TARGET_PATH"
                     print_quick_start
                 fi
@@ -610,8 +606,7 @@ main() {
                 read -r
                 ;;
             3)
-                determine_target_and_create "--cursor"
-                if [ $? -eq 0 ]; then
+                if determine_target_and_create "--cursor"; then
                     setup_cursor "$TARGET_PATH"
                     print_quick_start
                 fi
@@ -620,8 +615,7 @@ main() {
                 read -r
                 ;;
             4)
-                determine_target_and_create "--all"
-                if [ $? -eq 0 ]; then
+                if determine_target_and_create "--all"; then
                     setup_all "$TARGET_PATH"
                     print_quick_start
                 fi

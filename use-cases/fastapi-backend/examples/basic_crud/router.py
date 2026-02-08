@@ -78,9 +78,7 @@ async def create_item(item: ItemCreate, db: Session = Depends(get_db)):
 
 
 @router.put("/{item_id}", response_model=ItemResponse)
-async def update_item(
-    item_id: int, item: ItemUpdate, db: Session = Depends(get_db)
-):
+async def update_item(item_id: int, item: ItemUpdate, db: Session = Depends(get_db)):
     """
     Update an existing item (partial update).
 

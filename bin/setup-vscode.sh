@@ -41,10 +41,10 @@ else
     echo -e "${YELLOW}Where would you like to set up the environment?${NC}"
     echo "1) Configure current directory ($SCRIPT_DIR)"
     echo "2) Create and configure a new project"
-    read -p "Select option (1/2): " setup_choice
+    read -rp "Select option (1/2): " setup_choice
 
     if [[ "$setup_choice" == "2" ]]; then
-        read -p "Enter path for new project (e.g. ~/projects/my-app): " entered_path
+        read -rp "Enter path for new project (e.g. ~/projects/my-app): " entered_path
         
         # Expand tilde manually
         TARGET_DIR="${entered_path/#\~/$HOME}"

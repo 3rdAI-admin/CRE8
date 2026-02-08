@@ -22,7 +22,7 @@ CHECK="✅"
 CROSS="❌"
 WARN="⚠️"
 INFO="ℹ️"
-ROCKET="🚀"
+
 
 # Get the directory of this script
 BIN_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"

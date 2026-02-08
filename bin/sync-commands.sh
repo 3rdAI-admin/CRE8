@@ -104,7 +104,8 @@ sync_command() {
     content=$(echo "$content" | awk 'NF{found=1} found')
 
     # Adjust relative links to be workspace-relative from the target directory (all are 2 levels deep)
-    local transformed_content=$(echo "$content" | sed -E 's|\]\(([^/h#][^)]*)\)|\](../../\1)|g')
+    local transformed_content
+    transformed_content=$(echo "$content" | sed -E 's|\]\(([^/h#][^)]*)\)|\](../../\1)|g')
 
     # === Claude Code ===
     local claude_file="$CLAUDE_DIR/$basename.md"
