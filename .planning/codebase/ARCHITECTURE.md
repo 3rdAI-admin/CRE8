@@ -202,6 +202,13 @@
 - Pattern: Python uses `python-dotenv` + Pydantic settings; MCP uses `wrangler secret put` for Cloudflare
 - Reference: `use-cases/pydantic-ai/examples/shared/settings.py` for Python; `use-cases/mcp-server/` Cloudflare secrets
 - Implementation: `CLAUDE.md` files specify how to load env vars for each use-case
+- MCP Auth Modules (split from monolithic `oauth-utils.ts` into focused modules):
+  - `src/auth/state-encoding.ts` — OAuth state encode/decode with typed `OAuthState` interface
+  - `src/auth/cookie-signing.ts` — HMAC-SHA256 cookie signing, approval checking, 32-char minimum secret validation
+  - `src/auth/html-rendering.ts` — Approval dialog HTML rendering with `sanitizeHtml()` entity-escaping
+  - `src/auth/oauth-helpers.ts` — Upstream authorize URL construction and token exchange
+  - `src/auth/oauth-utils.ts` — Barrel re-export (zero breaking changes to existing imports)
+  - `src/auth/github-handler.ts` — Full GitHub OAuth 2.0 flow orchestration
 
 **Testing:**
 - Approach: Use-case specific (pytest for Python, vitest/MCP Inspector for TypeScript)

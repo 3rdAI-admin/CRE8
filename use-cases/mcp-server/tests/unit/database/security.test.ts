@@ -62,6 +62,52 @@ describe('Database Security', () => {
       expect(result.isValid).toBe(false)
       expect(result.error).toBe('Query contains potentially dangerous SQL patterns')
     })
+
+    // Edge cases for obfuscation attempts
+    it('should reject TRUNCATE at start of query', () => {
+      expect(validateSqlQuery('TRUNCATE TABLE users').isValid).toBe(false)
+    })
+
+    it('should reject ALTER at start of query', () => {
+      expect(validateSqlQuery('ALTER TABLE users ADD COLUMN admin BOOLEAN').isValid).toBe(false)
+    })
+
+    it('should reject piggy-backed GRANT statements', () => {
+      expect(validateSqlQuery('SELECT 1; GRANT ALL ON users TO public').isValid).toBe(false)
+    })
+
+    it('should reject piggy-backed REVOKE statements', () => {
+      expect(validateSqlQuery('SELECT 1; REVOKE ALL ON users FROM public').isValid).toBe(false)
+    })
+
+    it('should reject xp_cmdshell anywhere in query', () => {
+      expect(validateSqlQuery("SELECT * FROM users WHERE name = 'xp_cmdshell'").isValid).toBe(false)
+    })
+
+    it('should reject sp_executesql anywhere in query', () => {
+      expect(validateSqlQuery("EXEC sp_executesql N'SELECT 1'").isValid).toBe(false)
+    })
+
+    it('should reject piggy-backed CREATE statements', () => {
+      expect(validateSqlQuery('SELECT 1; CREATE TABLE evil (id int)').isValid).toBe(false)
+    })
+
+    it('should reject mixed-case DROP injection', () => {
+      expect(validateSqlQuery('SELECT 1; DrOp TABLE users').isValid).toBe(false)
+    })
+
+    it('should allow safe queries with the word drop in values', () => {
+      // "drop" in a string literal value should be fine (no semicolon + DROP pattern)
+      expect(validateSqlQuery("SELECT * FROM items WHERE name = 'raindrop'").isValid).toBe(true)
+    })
+
+    it('should allow subqueries and CTEs', () => {
+      expect(validateSqlQuery('WITH cte AS (SELECT 1) SELECT * FROM cte').isValid).toBe(true)
+    })
+
+    it('should allow safe JOIN queries', () => {
+      expect(validateSqlQuery('SELECT u.name, p.title FROM users u JOIN posts p ON u.id = p.user_id').isValid).toBe(true)
+    })
   })
 
   describe('isWriteOperation', () => {
@@ -130,6 +176,25 @@ describe('Database Security', () => {
     it('should handle null/undefined errors', () => {
       expect(formatDatabaseError(null)).toBe('An unknown database error occurred.')
       expect(formatDatabaseError(undefined)).toBe('An unknown database error occurred.')
+    })
+
+    it('should handle number error', () => {
+      expect(formatDatabaseError(42)).toBe('An unknown database error occurred.')
+    })
+
+    it('should hide password even in complex error messages', () => {
+      const error = new Error('FATAL: password authentication failed for user "admin"')
+      expect(formatDatabaseError(error)).toBe('Database authentication failed. Please check your credentials.')
+    })
+
+    it('should detect "connect" substring in connection errors', () => {
+      const error = new Error('could not connect to server: Connection refused')
+      expect(formatDatabaseError(error)).toBe('Unable to connect to database. Please check your connection string.')
+    })
+
+    it('should pass through non-sensitive error messages', () => {
+      const error = new Error('relation "nonexistent_table" does not exist')
+      expect(formatDatabaseError(error)).toBe('Database error: relation "nonexistent_table" does not exist')
     })
   })
 })

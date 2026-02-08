@@ -2,7 +2,7 @@
 import type { AuthRequest } from "@cloudflare/workers-oauth-provider";
 import { Hono } from "hono";
 import { Octokit } from "octokit";
-import type { Props, ExtendedEnv } from "../types";
+import type { Props, ExtendedEnv, WorkerEnv } from "../types";
 import {
   clientIdAlreadyApproved,
   parseRedirectApproval,
@@ -19,7 +19,7 @@ app.get("/authorize", async (c) => {
     return c.text("Invalid request", 400);
   }
 
-  if (await clientIdAlreadyApproved(c.req.raw, oauthReqInfo.clientId, (c.env as any).COOKIE_ENCRYPTION_KEY)) {
+  if (await clientIdAlreadyApproved(c.req.raw, oauthReqInfo.clientId, c.env.COOKIE_ENCRYPTION_KEY)) {
     return redirectToGithub(c.req.raw, oauthReqInfo, c.env, {});
   }
 
@@ -36,20 +36,21 @@ app.get("/authorize", async (c) => {
 
 app.post("/authorize", async (c) => {
   // Validates form submission, extracts state, and generates Set-Cookie headers to skip approval dialog next time
-  const { state, headers } = await parseRedirectApproval(c.req.raw, (c.env as any).COOKIE_ENCRYPTION_KEY);
-  if (!state.oauthReqInfo) {
+  const { state, headers } = await parseRedirectApproval(c.req.raw, c.env.COOKIE_ENCRYPTION_KEY);
+  const oauthReqInfo = state.oauthReqInfo as AuthRequest | undefined;
+  if (!oauthReqInfo) {
     return c.text("Invalid request", 400);
   }
 
-  return redirectToGithub(c.req.raw, state.oauthReqInfo, c.env, headers);
+  return redirectToGithub(c.req.raw, oauthReqInfo, c.env, headers);
 });
 
-async function redirectToGithub(request: Request, oauthReqInfo: AuthRequest, env: Env, headers: Record<string, string> = {}) {
+async function redirectToGithub(request: Request, oauthReqInfo: AuthRequest, env: WorkerEnv, headers: Record<string, string> = {}) {
   return new Response(null, {
     headers: {
       ...headers,
       location: getUpstreamAuthorizeUrl({
-        client_id: (env as any).GITHUB_CLIENT_ID,
+        client_id: env.GITHUB_CLIENT_ID,
         redirect_uri: new URL("/callback", request.url).href,
         scope: "read:user",
         state: btoa(JSON.stringify(oauthReqInfo)),
@@ -77,8 +78,8 @@ app.get("/callback", async (c) => {
 
   // Exchange the code for an access token
   const [accessToken, errResponse] = await fetchUpstreamAuthToken({
-    client_id: (c.env as any).GITHUB_CLIENT_ID,
-    client_secret: (c.env as any).GITHUB_CLIENT_SECRET,
+    client_id: c.env.GITHUB_CLIENT_ID,
+    client_secret: c.env.GITHUB_CLIENT_SECRET,
     code: c.req.query("code"),
     redirect_uri: new URL("/callback", c.req.url).href,
     upstream_url: "https://github.com/login/oauth/access_token",

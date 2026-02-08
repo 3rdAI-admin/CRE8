@@ -1,8 +1,9 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { 
-	Props, 
-	ListTablesSchema, 
-	QueryDatabaseSchema, 
+import {
+	Props,
+	WorkerEnv,
+	ListTablesSchema,
+	QueryDatabaseSchema,
 	ExecuteDatabaseSchema,
 	createErrorResponse,
 	createSuccessResponse
@@ -16,7 +17,7 @@ const ALLOWED_USERNAMES = new Set<string>([
 	'coleam00'
 ]);
 
-export function registerDatabaseTools(server: McpServer, env: Env, props: Props) {
+export function registerDatabaseTools(server: McpServer, env: WorkerEnv, props: Props) {
 	// Tool 1: List Tables - Available to all authenticated users
 	server.tool(
 		"listTables",
@@ -24,7 +25,7 @@ export function registerDatabaseTools(server: McpServer, env: Env, props: Props)
 		ListTablesSchema,
 		async () => {
 			try {
-				return await withDatabase((env as any).DATABASE_URL, async (db) => {
+				return await withDatabase(env.DATABASE_URL, async (db) => {
 					// Single query to get all table and column information (using your working query)
 					const columns = await db.unsafe(`
 						SELECT 
@@ -97,7 +98,7 @@ export function registerDatabaseTools(server: McpServer, env: Env, props: Props)
 					);
 				}
 				
-				return await withDatabase((env as any).DATABASE_URL, async (db) => {
+				return await withDatabase(env.DATABASE_URL, async (db) => {
 					const results = await db.unsafe(sql);
 					
 					return {
@@ -130,7 +131,7 @@ export function registerDatabaseTools(server: McpServer, env: Env, props: Props)
 						return createErrorResponse(`Invalid SQL statement: ${validation.error}`);
 					}
 					
-					return await withDatabase((env as any).DATABASE_URL, async (db) => {
+					return await withDatabase(env.DATABASE_URL, async (db) => {
 						const results = await db.unsafe(sql);
 						
 						const isWrite = isWriteOperation(sql);

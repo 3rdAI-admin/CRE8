@@ -68,7 +68,19 @@ use-cases/pydantic-ai/
 use-cases/mcp-server/
 ├── src/
 │   ├── index.ts
-│   ├── database.ts
+│   ├── types.ts              # WorkerEnv, ExtendedEnv, tool schemas
+│   ├── auth/
+│   │   ├── github-handler.ts
+│   │   ├── oauth-utils.ts    # Barrel re-export
+│   │   ├── state-encoding.ts
+│   │   ├── cookie-signing.ts
+│   │   ├── html-rendering.ts
+│   │   ├── oauth-helpers.ts
+│   │   └── workers-oauth-utils.ts
+│   ├── database/
+│   │   ├── connection.ts     # Singleton pool (configurable poolMax)
+│   │   ├── security.ts       # SQL validation, error formatting
+│   │   └── utils.ts
 │   └── tools/
 ├── tests/
 │   ├── setup.ts
@@ -79,8 +91,10 @@ use-cases/mcp-server/
 │   │   ├── database.mock.ts
 │   │   └── oauth.mock.ts
 │   └── unit/
+│       ├── auth/
+│       │   └── state-encoding.test.ts  # 8 tests: round-trip, format, errors
 │       ├── database/
-│       │   ├── security.test.ts
+│       │   ├── security.test.ts        # 36 tests: validation, write ops, error formatting
 │       │   └── utils.test.ts
 │       └── utils/
 │           └── response-helpers.test.ts

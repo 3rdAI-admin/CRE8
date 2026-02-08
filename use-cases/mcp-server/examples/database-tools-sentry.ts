@@ -1,9 +1,10 @@
 import * as Sentry from "@sentry/cloudflare";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { 
-	Props, 
-	ListTablesSchema, 
-	QueryDatabaseSchema, 
+import {
+	Props,
+	WorkerEnv,
+	ListTablesSchema,
+	QueryDatabaseSchema,
 	ExecuteDatabaseSchema,
 	createErrorResponse,
 	createSuccessResponse
@@ -44,7 +45,7 @@ function handleError(error: unknown): { content: Array<{ type: "text"; text: str
 	};
 }
 
-export function registerDatabaseToolsWithSentry(server: McpServer, env: Env, props: Props) {
+export function registerDatabaseToolsWithSentry(server: McpServer, env: WorkerEnv, props: Props) {
 	// Tool 1: List Tables - Available to all authenticated users
 	server.tool(
 		"listTables",
@@ -66,7 +67,7 @@ export function registerDatabaseToolsWithSentry(server: McpServer, env: Env, pro
 					});
 
 					try {
-						return await withDatabase((env as any).DATABASE_URL, async (db) => {
+						return await withDatabase(env.DATABASE_URL, async (db) => {
 							// Single query to get all table and column information (using your working query)
 							const columns = await db.unsafe(`
 								SELECT 
@@ -155,7 +156,7 @@ export function registerDatabaseToolsWithSentry(server: McpServer, env: Env, pro
 							);
 						}
 						
-						return await withDatabase((env as any).DATABASE_URL, async (db) => {
+						return await withDatabase(env.DATABASE_URL, async (db) => {
 							const results = await db.unsafe(sql);
 							
 							return {
@@ -207,7 +208,7 @@ export function registerDatabaseToolsWithSentry(server: McpServer, env: Env, pro
 								return createErrorResponse(`Invalid SQL statement: ${validation.error}`);
 							}
 							
-							return await withDatabase((env as any).DATABASE_URL, async (db) => {
+							return await withDatabase(env.DATABASE_URL, async (db) => {
 								const results = await db.unsafe(sql);
 								
 								const isWrite = isWriteOperation(sql);

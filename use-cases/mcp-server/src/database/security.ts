@@ -1,32 +1,42 @@
 import type { SqlValidationResult } from "../types";
 
 /**
- * SQL injection protection: Basic SQL keyword validation
- * This is a simple check - in production you should use parameterized queries
+ * SQL injection protection via pattern-based validation.
+ *
+ * SECURITY NOTE: This is a defence-in-depth measure that catches common
+ * attack patterns, but it is NOT foolproof.  Obfuscated queries (e.g. using
+ * comments, Unicode tricks, or alternate casing) may bypass these checks.
+ * Always pair this with:
+ *   1. Parameterized queries where possible (prefer `db(sql, [params])` over `db.unsafe(sql)`)
+ *   2. Least-privilege database credentials (read-only role for query tools)
+ *   3. Network-level controls (e.g. Cloudflare Access, IP allowlists)
+ *
+ * Each pattern targets a specific attack vector — see inline comments.
  */
 export function validateSqlQuery(sql: string): SqlValidationResult {
   const trimmedSql = sql.trim().toLowerCase();
 
-  // Check for empty queries
   if (!trimmedSql) {
     return { isValid: false, error: "SQL query cannot be empty" };
   }
 
-  // Check for obviously dangerous patterns
+  // Reason: each regex targets a distinct destructive SQL pattern.
+  // Patterns are intentionally broad (case-insensitive, optional whitespace)
+  // to catch simple obfuscation while accepting that advanced bypass is possible.
   const dangerousPatterns = [
-    /;\s*drop\s+/i,
-    /^drop\s+/i, // DROP at start of query
-    /;\s*delete\s+.*\s+where\s+1\s*=\s*1/i,
-    /;\s*update\s+.*\s+set\s+.*\s+where\s+1\s*=\s*1/i,
-    /;\s*truncate\s+/i,
-    /^truncate\s+/i, // TRUNCATE at start of query
-    /;\s*alter\s+/i,
-    /^alter\s+/i, // ALTER at start of query
-    /;\s*create\s+/i,
-    /;\s*grant\s+/i,
-    /;\s*revoke\s+/i,
-    /xp_cmdshell/i,
-    /sp_executesql/i,
+    /;\s*drop\s+/i, // Piggy-backed DROP after another statement
+    /^drop\s+/i, // DROP as the primary statement
+    /;\s*delete\s+.*\s+where\s+1\s*=\s*1/i, // Unconditional DELETE via tautology
+    /;\s*update\s+.*\s+set\s+.*\s+where\s+1\s*=\s*1/i, // Unconditional UPDATE via tautology
+    /;\s*truncate\s+/i, // Piggy-backed TRUNCATE
+    /^truncate\s+/i, // TRUNCATE as the primary statement
+    /;\s*alter\s+/i, // Piggy-backed ALTER
+    /^alter\s+/i, // ALTER as the primary statement
+    /;\s*create\s+/i, // Piggy-backed CREATE
+    /;\s*grant\s+/i, // Privilege escalation via GRANT
+    /;\s*revoke\s+/i, // Privilege removal via REVOKE
+    /xp_cmdshell/i, // SQL Server command execution
+    /sp_executesql/i, // SQL Server dynamic execution
   ];
 
   for (const pattern of dangerousPatterns) {
@@ -39,7 +49,7 @@ export function validateSqlQuery(sql: string): SqlValidationResult {
 }
 
 /**
- * Check if a SQL query is a write operation
+ * Check if a SQL query is a write operation.
  */
 export function isWriteOperation(sql: string): boolean {
   const trimmedSql = sql.trim().toLowerCase();
@@ -49,7 +59,14 @@ export function isWriteOperation(sql: string): boolean {
 }
 
 /**
- * Format database error for user-friendly display
+ * Format database error for user-friendly display.
+ *
+ * SECURITY NOTE: Uses keyword matching to hide sensitive information.
+ * This is a blocklist approach — unknown error messages fall through to the
+ * generic `Database error: <message>` format.  For maximum safety, consider
+ * switching to a whitelist of allowed messages and returning a generic
+ * response for everything else.  Full error details should be logged
+ * server-side (e.g. via Sentry) for debugging.
  */
 export function formatDatabaseError(error: unknown): string {
   if (error instanceof Error) {

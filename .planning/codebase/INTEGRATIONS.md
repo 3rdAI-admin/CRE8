@@ -42,7 +42,7 @@
 - PostgreSQL
   - Connection: `DATABASE_URL` environment variable
   - Client: `postgres` npm package (3.4.5) with connection pooling
-  - Features: Prepared statements enabled, connection pooling (max 5 connections)
+  - Features: Prepared statements enabled, connection pooling (configurable via `poolMax` parameter, default 5; Cloudflare Workers 6-connection limit)
   - Security: SQL injection validation in `src/database/security.ts`
 
 **File Storage:**
@@ -58,9 +58,13 @@
 **Auth Provider:**
 - GitHub OAuth 2.0 (custom implementation)
 - Implementation files:
-  - `src/auth/github-handler.ts` - OAuth flow orchestration
-  - `src/auth/oauth-utils.ts` - URL construction and token exchange helpers
-  - `src/auth/workers-oauth-utils.ts` - HMAC-signed cookie approval system
+  - `src/auth/github-handler.ts` — OAuth flow orchestration (uses `WorkerEnv` typed bindings)
+  - `src/auth/oauth-utils.ts` — Barrel re-export (delegates to focused modules below)
+  - `src/auth/state-encoding.ts` — `encodeState()` / `decodeState()` with typed `OAuthState` interface
+  - `src/auth/cookie-signing.ts` — HMAC-SHA256 cookie signing, `clientIdAlreadyApproved()`, `parseRedirectApproval()`, 32-char minimum secret validation
+  - `src/auth/html-rendering.ts` — `renderApprovalDialog()`, `sanitizeHtml()` (entity-escaping only)
+  - `src/auth/oauth-helpers.ts` — `getUpstreamAuthorizeUrl()`, `fetchUpstreamAuthToken()`
+  - `src/auth/workers-oauth-utils.ts` — Low-level HMAC-signed cookie approval system
 
 **User Context:**
 - Authenticated user props stored in OAuth token:
@@ -70,7 +74,8 @@
   - `accessToken` - GitHub personal access token (never exposed to client)
 
 **Session Management:**
-- Cookie-based approval system using HMAC-SHA256 signatures
+- Cookie-based approval system using HMAC-SHA256 signatures (`src/auth/cookie-signing.ts`)
+- `COOKIE_ENCRYPTION_KEY` minimum length: 32 characters (enforced at import time)
 - Clients can skip approval dialog on subsequent logins
 - Cookie encryption key: `COOKIE_ENCRYPTION_KEY` environment variable
 
@@ -160,6 +165,8 @@
 
 **Connection Management:**
 - Singleton pattern: `src/database/connection.ts` maintains single connection pool instance
+- Pool size configurable via `poolMax` parameter (default: 5); documented Cloudflare Workers 6-connection limit
+- Thread safety: Safe under Workers single-threaded V8 isolate model (documented)
 - Automatic cleanup: Durable Objects alarm handler calls `closeDb()` on shutdown
 - Prepared statements enabled for performance and security
 
