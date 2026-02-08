@@ -1,5 +1,5 @@
 ---
-mode: agent
+agent: agent
 description: Validate Context Engineering Template (project-specific)
 ---
 

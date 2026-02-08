@@ -123,11 +123,18 @@ determine_target_and_create() {
 
 install_to_existing() {
     local ide_flags="$1"
+    local provided_path="${2:-}"
     
     echo ""
     echo -e "${CYAN}${BOLD}Install into an existing project or codebase${NC}"
     echo ""
-    read -p "Enter path to existing project (e.g. ~/projects/my-app): " entered_path
+    
+    local entered_path
+    if [ -n "$provided_path" ]; then
+        entered_path="$provided_path"
+    else
+        read -p "Enter path to existing project (e.g. ~/projects/my-app): " entered_path
+    fi
     
     # Expand tilde manually
     local target_path="${entered_path/#\~/$HOME}"
@@ -493,22 +500,25 @@ echo ""
 
 show_help() {
     echo "Usage: ./setup.sh [option]"
+    echo "       ./setup.sh --install PATH [--vscode|--claude|--cursor|--all]"
     echo ""
     echo "Options:"
     echo "  --vscode, -v     Setup VS Code with GitHub Copilot only"
     echo "  --claude, -c     Setup Claude Code only"
     echo "  --cursor, -u     Setup Cursor only"
     echo "  --all, -a        Setup all IDEs"
+    echo "  --install PATH   Install into an existing project (non-interactive)"
     echo "  --help, -h       Show this help message"
     echo ""
     echo "Without options, an interactive menu will be displayed."
     echo ""
-    echo "The setup wizard offers three modes:"
-    echo "  1) Configure the template repo itself"
-    echo "  2) Create a brand new project from the template"
-    echo "  3) Install into an existing project or codebase"
+    echo "Examples:"
+    echo "  ./setup.sh                                  # Interactive wizard"
+    echo "  ./setup.sh --install ~/projects/my-app --all    # Install all IDEs"
+    echo "  ./setup.sh --install ~/projects/my-app --cursor # Cursor only"
+    echo "  ./setup.sh --install . --claude                 # Current dir, Claude only"
     echo ""
-    echo "Option 3 is non-destructive: it copies slash commands, templates,"
+    echo "The --install flag is non-destructive: it copies slash commands, templates,"
     echo "and workflow files into your existing project without overwriting"
     echo "files that already exist (CLAUDE.md, .cursorrules, etc.)."
     echo ""
@@ -519,6 +529,21 @@ show_help() {
 # =============================================================================
 
 main() {
+    # Handle --install flag (non-interactive install to existing project)
+    if [[ "${1:-}" == "--install" ]]; then
+        local install_path="${2:-}"
+        if [ -z "$install_path" ]; then
+            print_error "Usage: ./setup.sh --install PATH [--vscode|--claude|--cursor|--all]"
+            exit 1
+        fi
+        shift 2  # Remove --install and PATH
+        
+        # Determine IDE flags from remaining args (default to --all)
+        local ide_flags="${1:---all}"
+        install_to_existing "$ide_flags" "$install_path"
+        exit $?
+    fi
+    
     # Handle command line arguments
     case "${1:-}" in
         --vscode|-v)

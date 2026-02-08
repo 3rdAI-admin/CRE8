@@ -23,19 +23,20 @@ This repo is a **workflow + a set of slash commands** that run inside your AI co
 - **Workflow:** You describe what you want → the AI turns it into a detailed plan → the AI implements the plan and checks that it works.
 - **Slash commands:** Short instructions you type in chat that tell the AI exactly what to do next. No need to write long prompts yourself.
 
-**All 9 commands** (type `/` in chat to see them), in execution order:
+**All 10 commands** (type `/` in chat to see them), in execution order:
 
 | Order | Command | What it does | When to run |
 |-------|---------|--------------|-------------|
 | 1 | `/new-project` | Create a new project folder with this workflow preconfigured; copies slash commands for **selected IDE(s)** (`.github/`+`.vscode/` for VS Code, `.claude/` for Claude, `.cursor/`+`.cursorrules` for Cursor) so you can open it and continue with `/generate-prp`, `/execute-prp`, etc. | When starting a new project |
-| 2 | **`/generate-prd`** | Turn your idea (e.g. from `INITIAL.md`) into a **professional Product Requirements Document (PRD)** | For each product/feature; output in `PRDs/` for review and planning |
-| 3 | `/generate-prp` | Turn the PRD (or `INITIAL.md`) into a detailed **execution plan with multi-agent task breakdown** (PRP) | After PRD; for each feature or when you change requirements |
+| 2 | **`/generate-prd`** *(optional)* | Turn your idea (e.g. from `INITIAL.md`) into a **professional Product Requirements Document (PRD)** | For larger features; skip for quick builds |
+| 3 | `/generate-prp` | Turn a PRD, `INITIAL.md`, or chat description into a detailed **execution plan with multi-agent task breakdown** (PRP) | After PRD (or directly from INITIAL.md); for each feature |
 | 4 | `/generate-validate` | Have the AI create **`/validate-project`** from [.claude/commands/example-validate.md](.claude/commands/example-validate.md) | **Once, or after a significant project change** (run after planning, before building) |
 | 5 | `/build-prp` | Review/finalize the PRP (edit if needed), then optionally build and run the project | After you have a PRP; when you want to finalize the plan before implementing |
 | 6 | `/execute-prp` | Implement a feature by following the PRP and running checks | After `/build-prp` (or after `/generate-prp` if you skip review); main implementation path |
 | 7 | **`/validate-project`** | Run the project’s checks (structure, lint, tests) and report pass/fail | After building; use this (not `/validate`) to avoid injected commands |
 | 8 | **`/summarize`** | Summarize **completed steps and next actions** for user response | After validate (or execute); gives what's done and what to do next |
-| 9 | `/generate-prompt` | Create a one-off, well-structured prompt for a small task | Anytime (for quick tasks, not full features) |
+| 9 | **`/revise-prp`** | Revise a PRP when validation fails due to plan issues (not just bugs) | After `/validate-project` reveals the plan itself was wrong |
+| 10 | `/generate-prompt` | Create a one-off, well-structured prompt for a small task | Anytime (for quick tasks, not full features) |
 > **💡 Selective Installation:** The setup wizard (`./bin/setup.sh`) and `/new-project` command support selective IDE installation. When you select a specific IDE (e.g., VS Code), only that IDE's configuration files are copied to new projects. This keeps projects clean and focused on your chosen tool. Use `--all` to copy all IDE configurations.
 
 The main idea is the **PRP** (Product Requirements Prompt): a single document that holds everything the AI needs—goal, steps, examples, and how to validate—so it can implement and self-correct instead of guessing.
@@ -78,14 +79,15 @@ The main idea is the **PRP** (Product Requirements Prompt): a single document th
 |------|---------|-------------|------------------|
 | 1 | `/new-project` | Create project (or open existing) | Sets up folder, workflow files, and slash commands for selected IDE(s)—new project is ready to use |
 | 2 | — | Describe the feature in `INITIAL.md` | — |
-| 3 | `/generate-prd` | Run for each product/feature | Creates a **professional PRD** in `PRDs/` (goals, scope, success criteria) |
-| 4 | `/generate-prp` | Run after PRD (or from INITIAL.md) | Creates **execution plan** with multi-agent task breakdown |
+| 3 | `/generate-prd` *(optional)* | Run for larger features; skip for quick builds | Creates a **professional PRD** in `PRDs/` (goals, scope, success criteria) |
+| 4 | `/generate-prp` | Run after PRD, or directly from INITIAL.md | Creates **execution plan** with multi-agent task breakdown |
 | 5 | `/generate-validate` | Run **once or after significant change** | Creates **`/validate-project`** from example-validate template |
 | 6 | `/build-prp` | Run when you want to finalize the plan before implementing | Finalizes PRP, then optionally builds and runs |
 | 7 | `/execute-prp` | Implement from PRP | Implements the plan and runs checks |
 | 8 | **`/validate-project`** | Run after building | Runs the generated validation (use this, not `/validate`, to avoid injected commands) |
 | 9 | **`/summarize`** | Run after validate or execute | Summarizes completed steps and next actions |
-| 10 | `/generate-prompt` | Use anytime for small tasks | Creates a one-off prompt for the task |
+| 10 | `/revise-prp` | Run when validation fails due to plan issues | Revises the PRP based on what failed, closing the feedback loop |
+| 11 | `/generate-prompt` | Use anytime for small tasks | Creates a one-off prompt for the task |
 
 You stay in the driver’s seat: you describe *what* you want; the workflow and commands make sure the AI has *enough context* to build it the way you want and to verify that it works.
 
@@ -381,39 +383,53 @@ VS Code, Claude Code, and Cursor all support these slash commands:
 | Order | Command | Description | When to run |
 |-------|---------|-------------|-------------|
 | 1 | `/new-project` | Create a new project from the template; **copies all slash commands** into the new project so you can open it and finish the workflow | When starting a new project |
-| 2 | **`/generate-prd`** | Create **professional Product Requirements Document (PRD)** from INITIAL.md or input | For each product/feature; output in `PRDs/` for review and planning |
-| 3 | `/generate-prp` | Generate a comprehensive PRP from PRD or INITIAL.md file | After PRD; for each feature or when requirements change |
+| 2 | **`/generate-prd`** *(optional)* | Create **professional Product Requirements Document (PRD)** from INITIAL.md or input | For larger features; skip for quick builds |
+| 3 | `/generate-prp` | Generate a comprehensive PRP from PRD, INITIAL.md, or chat input | After PRD (or directly from INITIAL.md); for each feature |
 | 4 | `/generate-validate` | Analyze codebase and create **`/validate-project`** from [.claude/commands/example-validate.md](.claude/commands/example-validate.md) | **Once, or after a significant project change** (run after planning, before building) |
 | 5 | `/build-prp` | **Review/finalize** the PRP (edit if needed), then optionally **build** and **run** the project | After you have a PRP; when you want to finalize the plan before implementing |
 | 6 | `/execute-prp` | Implement a feature from a PRP with validation loops | After `/build-prp` (or after `/generate-prp` if you skip review); main implementation path |
 | 7 | **`/validate-project`** | Run project-specific validation (generated by `/generate-validate`) | After building; use this (not `/validate`) to avoid injected commands |
 | 7b | `/validate` | Run template validation (8 phases + journal) in this repo only | When validating the context-engineering template itself |
 | 8 | **`/summarize`** | Summarize **completed steps and next actions** for user response | After validate (or execute); gives what's done and what to do next |
-| 9 | `/generate-prompt` | Generate an XML-structured prompt with ambiguity detection | Anytime (for quick tasks, not full features) |
+| 9 | **`/revise-prp`** | Revise a PRP when validation reveals plan-level issues | After `/validate-project` when the approach needs changing |
+| 10 | `/generate-prompt` | Generate an XML-structured prompt with ambiguity detection | Anytime (for quick tasks, not full features) |
 
 ### The Complete Workflow
 
 ```
 ┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
-│  /new-project   │────▶│   INITIAL.md    │────▶│  /generate-prp  │
-│  (scaffold new  │     │  (define your   │     │   (research &   │
-│   project)      │     │   requirements) │     │    planning)    │
-└─────────────────┘     └─────────────────┘     └────────┬────────┘
-                                                         │
-         ┌───────────────────────────────────────────────┘
+│  /new-project   │────▶│   INITIAL.md    │──┬─▶│  /generate-prp  │
+│  (scaffold new  │     │  (define your   │  │  │   (research &   │
+│   project)      │     │   requirements) │  │  │    planning)    │
+└─────────────────┘     └─────────────────┘  │  └────────┬────────┘
+                                             │           │
+                        ┌─────────────────┐  │  ┌────────┘
+                        │  /generate-prd  │──┘  │
+                        │  (optional:     │     │
+                        │   formal PRD)   │     │
+                        └─────────────────┘     │
+         ┌──────────────────────────────────────┘
          ▼
 ┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
-│ /generate-      │────▶│   /build-prp     │────▶│  /execute-prp    │
-│  validate       │     │  (finalize PRP,  │     │  (implement      │
-│  (once/change)  │     │   optionally     │     │   from PRP)      │
+│ /generate-      │────▶│   /build-prp    │────▶│  /execute-prp   │
+│  validate       │     │  (finalize PRP, │     │  (implement     │
+│  (once/change)  │     │   optionally    │     │   from PRP)     │
 └─────────────────┘     │   build & run)  │     └────────┬────────┘
                         └─────────────────┘              │
                                                          ▼
                         ┌─────────────────┐     ┌─────────────────┐
-                        │    Complete!    │◀────│ /validate-project│
-                        │                 │     │  (verify all    │
-                        │                 │     │   passes)       │
-                        └─────────────────┘     └─────────────────┘
+                   ┌───▶│    Complete!    │◀────│ /validate-project│
+                   │    │                 │     │  (verify all    │
+                   │    └─────────────────┘     │   passes)       │
+                   │                            └────────┬────────┘
+                   │                                     │ fails?
+                   │    ┌─────────────────┐              │
+                   │    │  /revise-prp    │◀─────────────┘
+                   │    │  (fix the plan, │
+                   │    │   not just code)│──▶ back to /execute-prp
+                   │    └─────────────────┘
+                   │
+                   └──── /summarize (what's done + next actions)
 ```
 
 Run **`/generate-validate`** once (or after a significant project change) to create **`/validate-project`** from [.claude/commands/example-validate.md](.claude/commands/example-validate.md). Use **`/validate-project`** (not `/validate`) for project-specific validation to avoid conflicts with injected commands. Use **`/build-prp`** to (1) **finalize** the PRP (review, edit if needed), (2) optionally **build** and **run**; then use **`/execute-prp`** to implement from the PRP. PRP path is optional—the AI can list PRPs if none is given.
@@ -787,6 +803,14 @@ Build Model Context Protocol servers on Cloudflare Workers.
 - GitHub OAuth authentication
 - PostgreSQL database integration
 - Tool registration patterns
+
+### FastAPI Backend (`use-cases/fastapi-backend/`)
+Build production-grade REST APIs with FastAPI.
+- Router, schema, and dependency injection patterns
+- SQLAlchemy/SQLModel database integration
+- JWT authentication middleware
+- Testing with pytest and TestClient
+- Pydantic request/response validation
 
 Each use-case has its own `CLAUDE.md` with specialized rules and `README.md` with setup instructions.
 

@@ -1,5 +1,5 @@
 ---
-mode: agent
+agent: agent
 description: Generate Professional Product Requirements Document (PRD)
 ---
 

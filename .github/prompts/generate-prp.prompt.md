@@ -1,5 +1,5 @@
 ---
-mode: agent
+agent: agent
 description: Create PRP (Execution Plan with Multi-Agent Task Breakdown)
 ---
 

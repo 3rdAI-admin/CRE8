@@ -1,5 +1,5 @@
 ---
-mode: agent
+agent: agent
 description: Summarize: Completed Steps and Next Actions
 ---
 
