@@ -33,37 +33,43 @@ This repo is a **workflow + a set of slash commands** that run inside your AI co
 | 4 | `/generate-validate` | Have the AI create **`/validate-project`** from [.claude/commands/example-validate.md](.claude/commands/example-validate.md) | **Once, or after a significant project change** (run after planning, before building) |
 | 5 | `/build-prp` | Review/finalize the PRP (edit if needed), then optionally build and run the project | After you have a PRP; when you want to finalize the plan before implementing |
 | 6 | `/execute-prp` | Implement a feature by following the PRP and running checks | After `/build-prp` (or after `/generate-prp` if you skip review); main implementation path |
-| 6 | **`/validate-project`** | Run the project’s checks (structure, lint, tests) and report pass/fail | After building; use this (not `/validate`) to avoid injected commands |
+| 7 | **`/validate-project`** | Run the project’s checks (structure, lint, tests) and report pass/fail | After building; use this (not `/validate`) to avoid injected commands |
 | 8 | **`/summarize`** | Summarize **completed steps and next actions** for user response | After validate (or execute); gives what's done and what to do next |
 | 9 | `/generate-prompt` | Create a one-off, well-structured prompt for a small task | Anytime (for quick tasks, not full features) |
 > **💡 Selective Installation:** The setup wizard (`./bin/setup.sh`) and `/new-project` command support selective IDE installation. When you select a specific IDE (e.g., VS Code), only that IDE's configuration files are copied to new projects. This keeps projects clean and focused on your chosen tool. Use `--all` to copy all IDE configurations.
+
 The main idea is the **PRP** (Product Requirements Prompt): a single document that holds everything the AI needs—goal, steps, examples, and how to validate—so it can implement and self-correct instead of guessing.
 
 ---
 
-## How (all 7 commands, in execution order)
+## How (all 9 commands, in execution order)
 
 1. **Create or open a project**  
-   If you’re starting fresh, type **`/new-project`** and give it a path (e.g. `~/projects/my-app`). Otherwise open an existing project that already has this workflow.
+   If you’re starting fresh, type **`/new-project`** and give it a path (e.g. `~/projects/my-app`). Otherwise open an existing project that already has this workflow. You can also install the workflow into an existing codebase using `./setup.sh` (choose option 3).
 
 2. **Describe your idea**  
    Fill in a simple template file (`INITIAL.md`) with what you want to build, any examples, and links or notes that matter.
 
-3. **Get a plan**  
-   In chat, type **`/generate-prp`** (and point it at your file). The AI researches your project and the topic, then writes a full implementation plan (the PRP) into a file in the `PRPs/` folder.
+3. **Get a professional requirements doc**  
+   In chat, type **`/generate-prd`** (and point it at your file). The AI creates a professional Product Requirements Document (PRD) in the `PRDs/` folder with goals, scope, and success criteria.
 
-4. **Set up validation (once or after a big change)**  
+4. **Get an execution plan**  
+   In chat, type **`/generate-prp`** (and point it at your PRD or `INITIAL.md`). The AI researches your project and the topic, then writes a full implementation plan with multi-agent task breakdown (the PRP) into a file in the `PRPs/` folder.
+
+5. **Set up validation (once or after a big change)**  
    Type **`/generate-validate`**. The AI uses [.claude/commands/example-validate.md](.claude/commands/example-validate.md) to create **`/validate-project`** for your project. Run this **once**, or again after a significant project change; then use **`/validate-project`** (not `/validate`) to avoid conflicts with injected commands.
 
-5. **Finalize the plan (optional)**  
+6. **Finalize the plan (optional)**  
    Type **`/build-prp`** when you want to review or edit the PRP before implementing, then optionally build and run. After that, use **`/execute-prp`** to implement the PRP and run checks.
 
-6. **Confirm it works**  
+7. **Confirm it works**  
    Type **`/validate-project`**. The AI runs the project’s checks (the ones set up by `/generate-validate`) and reports what passed or failed.
 
-7. **Quick tasks (anytime)**  
-   For a small, one-off task (not a full feature), type **`/generate-prompt`** and describe the task. The AI creates a focused prompt for it.
+8. **Get a summary**  
+   Type **`/summarize`**. The AI summarizes what was completed and lists the next actions, so you know exactly where things stand.
 
+9. **Quick tasks (anytime)**  
+   For a small, one-off task (not a full feature), type **`/generate-prompt`** and describe the task. The AI creates a focused prompt for it.
 ---
 
 ## Summary
@@ -112,14 +118,6 @@ cd Context-Engineering-Intro
 # 2. Run the interactive setup wizard
 .\setup.ps1
 ```
-git clone https://github.com/coleam00/Context-Engineering-Intro.git
-cd Context-Engineering-Intro
-
-# 2. Run the interactive setup wizard
-.\SETUP.ps1
-
-# 3. Choose your IDE(s) from the menu
-```
 
 **Command-line flags (macOS/Linux):**
 ```bash
@@ -159,6 +157,23 @@ code ~/projects/my-new-app   # or: cursor .  or  claude .
 
 The new project also includes a **`journal/`** folder (with a starter index). When you run `/validate-project`, `/execute-prp`, or `/build-prp`, the AI appends progress to `journal/YYYY-MM-DD.md` and updates `journal/README.md`. Use the journal to see where you left off and resume after a computer restart or unexpected IDE shutdown.
 
+### Install into an Existing Project
+
+Already have a codebase? The setup wizard can install the context engineering workflow into it **without overwriting** your existing files:
+
+```bash
+# Run the setup wizard
+./setup.sh
+
+# Choose your IDE(s) (1-4), then select option 3:
+#   "Install into an existing project or codebase"
+# Enter the path to your project when prompted
+```
+
+This copies slash commands for your selected IDE(s), PRP/PRD templates, `CLAUDE.md`, `INITIAL.md`, and a `journal/` directory into your project. Files that already exist (like `.cursorrules` or `CLAUDE.md`) are skipped so nothing gets overwritten.
+
+After installation, open your project in your IDE and type `/generate-prd` to start.
+
 ### Option A: VS Code with GitHub Copilot
 
 ```bash
@@ -193,7 +208,7 @@ cd Context-Engineering-Intro
 # 3. Open this repo in Claude Code (slash commands come from .claude/skills/ in the open project)
 claude .
 
-# 4. In chat, type / to see all 7 commands; then use:
+# 4. In chat, type / to see all 9 commands; then use:
 /generate-prp INITIAL.md
 /generate-validate          # once or after significant change
 /build-prp PRPs/your-feature-name.md   # optional: finalize then build
@@ -201,7 +216,7 @@ claude .
 /validate
 ```
 
-**Using a different project?** Projects **created with `/new-project`** already have all slash commands copied in—just open that project in Claude Code and use `/generate-prp`, `/execute-prp`, etc. For an **existing** project that was *not* created from this template, run from the template repo: `./install-claude-commands.sh` and enter the project path (or `./install-claude-commands.sh /path/to/project`). Then open that project in Claude Code and restart.
+**Using a different project?** Projects **created with `/new-project`** already have all slash commands copied in—just open that project in Claude Code and use `/generate-prp`, `/execute-prp`, etc. For an **existing** project that was *not* created from this template, run `./setup.sh` from the template repo, choose your IDE, and select **option 3** ("Install into an existing project"). Alternatively, run `./install-claude-commands.sh /path/to/project` for Claude-only installation. Then open that project in Claude Code and restart.
 
 ### Option C: Cursor
 
@@ -230,7 +245,7 @@ cursor .
 
 - [Why](#why) – Why context engineering beats vibe coding
 - [What](#what) – Workflow and slash commands
-- [How (all 7 commands)](#how-all-7-commands-in-execution-order) – Execution order with “once or after significant change” notes
+- [How (all 9 commands)](#how-all-9-commands-in-execution-order) – Execution order with “once or after significant change” notes
 - [Summary](#summary) – You do / AI does table
 - [Overview (standalone)](OVERVIEW.md) – One-page version of the intro above
 - [What is Context Engineering?](#what-is-context-engineering)
@@ -773,15 +788,6 @@ Build Model Context Protocol servers on Cloudflare Workers.
 - PostgreSQL database integration
 - Tool registration patterns
 
-### Agent Factory (`use-cases/agent-factory-with-subagents/`)
-Multi-agent orchestration system with specialized subagents.
-- Phase-based workflow (0-5)
-- Subagent coordination and handoffs
-- RAG pipeline integration
-
-### Template Generator (`use-cases/template-generator/`)
-Create new use-case templates for this framework.
-
 Each use-case has its own `CLAUDE.md` with specialized rules and `README.md` with setup instructions.
 
 ## Best Practices
@@ -863,7 +869,7 @@ python app.py
 
 **"Permission denied" when running scripts**
 ```bash
-chmod +x SETUP*.sh bin/create-project.sh install-claude-commands.sh
+chmod +x setup.sh bin/*.sh install-claude-commands.sh
 ```
 
 **Scripts fail with "command not found"**
@@ -879,14 +885,10 @@ chmod +x SETUP*.sh bin/create-project.sh install-claude-commands.sh
 
 **Claude Code: Commands not appearing in the `/` menu**
 - Slash commands come from **`.claude/skills/`** in the **project you have open**. Projects **created with `/new-project`** already have the commands—just open that project. For an **existing** project not created from this template:
-- **To install the 7 commands into that existing project**, run from the template repo:
-  ```bash
-  cd /path/to/context-engineering
-  ./install-claude-commands.sh
-  ```
-  The script will prompt for the install path (or run `./install-claude-commands.sh /path/to/your/project` to pass the path directly).
+- **Recommended:** Run `./setup.sh` from the template repo, choose Claude Code, and select **option 3** ("Install into an existing project"). This installs all 9 commands plus templates.
+- **Claude-only alternative:** Run `./install-claude-commands.sh /path/to/your/project` to install just the Claude Code commands and skills.
 - Then open that project in Claude Code and **restart Claude Code** (Cmd+Q, reopen) so it rescans `.claude/skills/`.
-- Ensure scripts are executable: `chmod +x install-claude-commands.sh` if you get "permission denied".
+- Ensure scripts are executable: `chmod +x setup.sh install-claude-commands.sh` if you get "permission denied".
 
 **Cursor: Prompts not available**
 - Ensure `.cursor/prompts/*.md` files exist
